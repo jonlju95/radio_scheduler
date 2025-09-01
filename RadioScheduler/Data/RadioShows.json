@@ -1,16 +1,15 @@
 [
   {
-    "id": "7d504caa-b4a8-404a-8af0-1fda5a902925",
-    "name": "News",
-    "durationMinutes": 10
+    "Id": "7d504caa-b4a8-404a-8af0-1fda5a902925",
+    "Name": "News",
+    "DurationMinutes": 10
   },
   {
-    "id": "1d64740a-7327-40fc-ad82-7fdb6d6a0af5",
-    "name": "LiveSession",
-    "durationMinutes": 55
+    "Id": "1d64740a-7327-40fc-ad82-7fdb6d6a0af5",
+    "Name": "LiveSession"
   },
   {
-    "id": "9c828a05-9849-4d86-8028-a9b139592e6a",
-    "name": "Music"
+    "Id": "9c828a05-9849-4d86-8028-a9b139592e6a",
+    "Name": "Music"
   }
 ]

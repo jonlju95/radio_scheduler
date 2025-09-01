@@ -14,6 +14,9 @@ public class RadioShowService(IRadioShowRepository radioShowRepository) {
 	}
 
 	public RadioShow AddRadioShow(RadioShow radioShow) {
+		if (radioShow.Id == Guid.Empty) {
+			radioShow.Id = Guid.NewGuid();
+		}
 		return radioShowRepository.CreateRadioShow(radioShow);
 	}
 

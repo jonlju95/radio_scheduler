@@ -1,10 +1,11 @@
 using RadioScheduler.Interfaces;
 using RadioScheduler.Models;
+using RadioScheduler.Utils;
 
 namespace RadioScheduler.Repositories;
 
 public class RadioShowRepository : IRadioShowRepository {
-	private readonly List<RadioShow> radioShows = [];
+	private readonly List<RadioShow> radioShows = RadioShowJsonReader.GetInMemoryRadioShows();
 
 	public IEnumerable<RadioShow> GetRadioShows() {
 		return radioShows;
@@ -15,6 +16,10 @@ public class RadioShowRepository : IRadioShowRepository {
 	}
 
 	public RadioShow CreateRadioShow(RadioShow radioShow) {
+		if (radioShows.Contains(radioShow)) {
+			return radioShow;
+		}
+
 		radioShows.Add(radioShow);
 		return radioShow;
 	}
@@ -24,6 +29,7 @@ public class RadioShowRepository : IRadioShowRepository {
 		if (existingRadioShow == null) {
 			return;
 		}
+
 		existingRadioShow.Name = radioShow.Name;
 		existingRadioShow.DurationMinutes = radioShow.DurationMinutes;
 	}

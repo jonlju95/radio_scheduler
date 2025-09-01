@@ -1,0 +1,38 @@
+[
+  {
+    "Id": "f40dd0a4-5e9c-4c2b-8b29-212c1b7dc8a1",
+    "FirstName": "Anders",
+    "LastName": "Andersson",
+    "IsGuest": false
+  },
+  {
+    "Id": "1deb3b15-63f2-48a7-b8b5-ce3648018b0a",
+    "FirstName": "Clara",
+    "LastName": "Löfgren",
+    "IsGuest": false
+  },
+  {
+    "Id": "7821040e-802f-4adf-81ae-38e32f628adb",
+    "FirstName": "Mateo",
+    "LastName": "Jakobsson",
+    "IsGuest": false
+  },
+  {
+    "Id": "73f97256-6423-4815-a330-58f33ca1b050",
+    "FirstName": "Judith",
+    "LastName": "Sjögren",
+    "IsGuest": true
+  },
+  {
+    "Id": "f734e369-8b2d-42fa-b44a-7185170f4ba2",
+    "FirstName": "Claudia",
+    "LastName": "Hedlund",
+    "IsGuest": true
+  },
+  {
+    "Id": "8e09fc5a-3042-4328-bcd3-0e805297425f",
+    "FirstName": "Alwin",
+    "LastName": "Hansson",
+    "IsGuest": true
+  }
+]

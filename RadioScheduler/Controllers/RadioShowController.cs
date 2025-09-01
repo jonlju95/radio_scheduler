@@ -5,7 +5,7 @@ using RadioScheduler.Services;
 namespace RadioScheduler.Controllers;
 
 [ApiController]
-[Route("/v1/[controller]s")]
+[Route("/[controller]s")]
 public class RadioShowController(RadioShowService radioShowService) : Controller {
 
 	[HttpGet]
@@ -30,6 +30,7 @@ public class RadioShowController(RadioShowService radioShowService) : Controller
 		if (id != radioShow.Id) {
 			return this.BadRequest();
 		}
+
 		radioShowService.UpdateRadioShow(radioShow);
 		return this.NoContent();
 	}
@@ -39,5 +40,4 @@ public class RadioShowController(RadioShowService radioShowService) : Controller
 		radioShowService.DeleteRadioShow(id);
 		return this.NoContent();
 	}
-
 }
