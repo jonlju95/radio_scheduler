@@ -20,12 +20,23 @@ public class RadioShowService(IRadioShowRepository radioShowRepository) {
 		return radioShowRepository.CreateRadioShow(radioShow);
 	}
 
-	public void UpdateRadioShow(RadioShow radioShow) {
-		radioShowRepository.UpdateRadioShow(radioShow);
+	public bool UpdateRadioShow(Guid id, RadioShow radioShow) {
+		RadioShow? existingShow = radioShowRepository.GetRadioShow(id);
+		if (existingShow == null) {
+			return false;
+		}
+		radioShowRepository.UpdateRadioShow(existingShow, radioShow);
+		return true;
 	}
 
-	public void DeleteRadioShow(Guid id) {
-		radioShowRepository.DeleteRadioShow(id);
+	public bool DeleteRadioShow(Guid id) {
+		RadioShow? existingShow = radioShowRepository.GetRadioShow(id);
+		if (existingShow == null) {
+			return false;
+		}
+
+		radioShowRepository.DeleteRadioShow(existingShow);
+		return true;
 	}
 
 }

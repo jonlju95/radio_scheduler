@@ -1,43 +1,59 @@
 using Microsoft.AspNetCore.Mvc;
 using RadioScheduler.Models;
+using RadioScheduler.Models.Api;
 using RadioScheduler.Services;
 
 namespace RadioScheduler.Controllers;
 
-[ApiController]
-[Route("/[controller]s")]
-public class RadioTimeslotController(RadioTimeslotService radioTimeslotService) : Controller {
+public class RadioTimeslotController(RadioTimeslotService radioTimeslotService) : BaseApiController {
 
 	[HttpGet]
-	public ActionResult<List<RadioTimeslot>> GetRadioTimeslots() {
-		return this.Ok(radioTimeslotService.GetRadioTimeslots());
+	public ActionResult<ResponseObject<List<RadioTimeslot>>> GetRadioTimeslots() {
+		IEnumerable<RadioTimeslot> radioTimeslots = radioTimeslotService.GetRadioTimeslots();
+
+		return radioTimeslots is null
+			? this.FailResponse<List<RadioTimeslot>>("NOT_FOUND", $"List {radioTimeslots} not found")
+			: this.OkResponse(radioTimeslots.ToList());
 	}
 
 	[HttpGet("{id:guid}")]
-	public ActionResult<RadioTimeslot> GetRadioTimeslot(Guid id) {
+	public ActionResult<ResponseObject<RadioTimeslot>> GetRadioTimeslot(Guid id) {
 		RadioTimeslot? radioTimeslot = radioTimeslotService.GetRadioTimeslot(id);
-		return radioTimeslot is null ? this.NotFound() : this.Ok(radioTimeslot);
+
+		return radioTimeslot is null
+			? this.FailResponse<RadioTimeslot>("NOT_FOUND", $"RadioTimeslot not found {id}")
+			: this.OkResponse(radioTimeslot);
 	}
 
 	[HttpPost]
-	public ActionResult<RadioTimeslot> AddRadioTimeslot(RadioTimeslot radioTimeslot) {
-		RadioTimeslot newRadioTimeslot = radioTimeslotService.AddRadioTimeslot(radioTimeslot);
-		return this.CreatedAtAction(nameof(this.GetRadioTimeslot), new { id = newRadioTimeslot.Id }, newRadioTimeslot);
+	public ActionResult<ResponseObject<RadioTimeslot>>
+		AddRadioTimeslot([FromBody] RequestObject<RadioTimeslot> request) {
+		if (request.Data == null) {
+			return this.FailResponse<RadioTimeslot>("BAD_REQUEST", $"No item provided");
+		}
+
+		RadioTimeslot newRadioTimeslot = radioTimeslotService.AddRadioTimeslot(request.Data);
+		return this.OkResponse(newRadioTimeslot);
 	}
 
 	[HttpPut("{id:guid}")]
-	public ActionResult<RadioTimeslot> UpdateRadioTimeslot(Guid id, RadioTimeslot radioTimeslot) {
-		if (id != radioTimeslot.Id) {
-			return this.BadRequest();
+	public ActionResult<ResponseObject<string>> UpdateRadioTimeslot(Guid id,
+		[FromBody] RequestObject<RadioTimeslot> request) {
+		if (request.Data is null) {
+			return this.FailResponse<string>("BAD_REQUEST", "No item provided");
 		}
 
-		radioTimeslotService.UpdateRadioTimeslot(radioTimeslot);
-		return this.NoContent();
+		bool success = radioTimeslotService.UpdateRadioTimeslot(id, request.Data);
+		return !success
+			? this.FailResponse<string>("NOT_FOUND", $"RadioTimeslot not found {id}")
+			: this.OkResponse("RadioTimeslot updated");
 	}
 
 	[HttpDelete("{id:guid}")]
-	public ActionResult DeleteRadioTimeslot(Guid id) {
-		radioTimeslotService.DeleteRadioTimeslot(id);
-		return this.NoContent();
+	public ActionResult<ResponseObject<string>> DeleteRadioTimeslot(Guid id) {
+		bool success = radioTimeslotService.DeleteRadioTimeslot(id);
+		return !success
+			? this.FailResponse<string>("NOT_FOUND", "RadioTimeslot not found")
+			: this.OkResponse("RadioTimeslot deleted");
 	}
 }

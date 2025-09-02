@@ -24,20 +24,12 @@ public class RadioShowRepository : IRadioShowRepository {
 		return radioShow;
 	}
 
-	public void UpdateRadioShow(RadioShow radioShow) {
-		RadioShow? existingRadioShow = this.GetRadioShow(radioShow.Id);
-		if (existingRadioShow == null) {
-			return;
-		}
-
-		existingRadioShow.Name = radioShow.Name;
-		existingRadioShow.DurationMinutes = radioShow.DurationMinutes;
+	public void UpdateRadioShow(RadioShow existingRadioShow, RadioShow newRadioShow) {
+		existingRadioShow.Name = newRadioShow.Name;
+		existingRadioShow.DurationMinutes = newRadioShow.DurationMinutes;
 	}
 
-	public void DeleteRadioShow(Guid id) {
-		RadioShow? radioShowToDelete = this.GetRadioShow(id);
-		if (radioShowToDelete != null) {
-			radioShows.Remove(radioShowToDelete);
-		}
+	public void DeleteRadioShow(RadioShow radioShowToDelete) {
+		radioShows.Remove(radioShowToDelete);
 	}
 }

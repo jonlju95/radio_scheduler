@@ -23,22 +23,14 @@ public class RadioTimeslotRepository : IRadioTimeslotRepository {
 		return radioTimeslot;
 	}
 
-	public void UpdateRadioTimeslot(RadioTimeslot radioTimeslot) {
-		RadioTimeslot? existingRadioTimeslot = this.GetRadioTimeslot(radioTimeslot.Id);
-		if (existingRadioTimeslot == null) {
-			return;
-		}
-
-		existingRadioTimeslot.Start = radioTimeslot.Start;
-		existingRadioTimeslot.End = radioTimeslot.End;
-		existingRadioTimeslot.HostId = radioTimeslot.HostId;
-		existingRadioTimeslot.ShowId = radioTimeslot.ShowId;
+	public void UpdateRadioTimeslot(RadioTimeslot existingRadioTimeslot, RadioTimeslot newRadioTimeslot) {
+		existingRadioTimeslot.Start = newRadioTimeslot.Start;
+		existingRadioTimeslot.End = newRadioTimeslot.End;
+		existingRadioTimeslot.HostId = newRadioTimeslot.HostId;
+		existingRadioTimeslot.ShowId = newRadioTimeslot.ShowId;
 	}
 
-	public void DeleteRadioTimeslot(Guid id) {
-		RadioTimeslot? radioTimeslot = this.GetRadioTimeslot(id);
-		if (radioTimeslot != null) {
-			radioTimeslots.Remove(radioTimeslot);
-		}
+	public void DeleteRadioTimeslot(RadioTimeslot radioTimeslotToDelete) {
+		radioTimeslots.Remove(radioTimeslotToDelete);
 	}
 }

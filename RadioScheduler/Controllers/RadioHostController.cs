@@ -1,43 +1,59 @@
 using Microsoft.AspNetCore.Mvc;
 using RadioScheduler.Models;
+using RadioScheduler.Models.Api;
 using RadioScheduler.Services;
 
 namespace RadioScheduler.Controllers;
 
-[ApiController]
-[Route("/[controller]s")]
-public class RadioHostController(RadioHostService radioHostService) : Controller {
+public class RadioHostController(RadioHostService radioHostService) : BaseApiController {
 
 	[HttpGet]
-	public ActionResult<List<RadioHost>> GetRadioHosts() {
-		return this.Ok(radioHostService.GetRadioHosts());
+	public ActionResult<ResponseObject<List<RadioHost>>> GetRadioHosts() {
+		IEnumerable<RadioHost> radioHosts = radioHostService.GetRadioHosts();
+
+		return radioHosts is null
+			? this.FailResponse<List<RadioHost>>("NOT_FOUND", $"List {radioHosts} not found")
+			: this.OkResponse(radioHosts.ToList());
 	}
 
 	[HttpGet("{id:guid}")]
-	public ActionResult<RadioHost> GetRadioHost(Guid id) {
+	public ActionResult<ResponseObject<RadioHost>> GetRadioHost(Guid id) {
 		RadioHost? radioHost = radioHostService.GetRadioHost(id);
-		return radioHost is null ? this.NotFound() : this.Ok(radioHost);
+
+		return radioHost is null
+			? this.FailResponse<RadioHost>("NOT_FOUND", $"Radio host {id} not found")
+			: this.OkResponse(radioHost);
 	}
 
 	[HttpPost]
-	public ActionResult<RadioHost> AddRadioHost(RadioHost radioHost) {
-		RadioHost newRadioHost = radioHostService.AddRadioHost(radioHost);
-		return this.CreatedAtAction(nameof(this.GetRadioHost), new { id = newRadioHost.Id }, newRadioHost);
+	public ActionResult<ResponseObject<RadioHost>> AddRadioHost([FromBody] RequestObject<RadioHost> request) {
+		if (request.Data == null) {
+			return this.FailResponse<RadioHost>("BAD_REQUEST", "No radio host provided");
+		}
+
+		RadioHost newRadioHost = radioHostService.AddRadioHost(request.Data);
+		return this.OkResponse(newRadioHost);
 	}
 
 	[HttpPut("{id:guid}")]
-	public ActionResult<RadioHost> UpdateRadioHost(Guid id, RadioHost radioHost) {
-		if (id != radioHost.Id) {
-			return this.BadRequest();
+	public ActionResult<ResponseObject<string>> UpdateRadioHost(Guid id, [FromBody] RequestObject<RadioHost> request) {
+		if (request.Data == null) {
+			return this.FailResponse<string>("BAD_REQUEST", "No radio host provided");
 		}
 
-		radioHostService.UpdateRadioHost(radioHost);
-		return this.NoContent();
+		bool success = radioHostService.UpdateRadioHost(id, request.Data);
+		return !success
+			? this.FailResponse<string>("NOT_FOUND", $"Radio host {id} not found")
+			: this.OkResponse("Radio host updated");
+		;
 	}
 
 	[HttpDelete("{id:guid}")]
-	public ActionResult DeleteRadioHost(Guid id) {
-		radioHostService.DeleteRadioHost(id);
-		return this.NoContent();
+	public ActionResult<ResponseObject<string>> DeleteRadioHost(Guid id) {
+		bool success = radioHostService.DeleteRadioHost(id);
+		return !success
+			? this.FailResponse<string>("NOT_FOUND", $"Radio host {id} not found")
+			: this.OkResponse("Radio host updated");
+		;
 	}
 }

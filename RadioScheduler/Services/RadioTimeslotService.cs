@@ -1,5 +1,6 @@
 using RadioScheduler.Interfaces;
 using RadioScheduler.Models;
+using RadioScheduler.Models.Api;
 
 namespace RadioScheduler.Services;
 
@@ -24,11 +25,21 @@ public class RadioTimeslotService(
 		return radioTimeslotRepository.CreateRadioTimeslot(radioTimeslot);
 	}
 
-	public void UpdateRadioTimeslot(RadioTimeslot radioTimeslot) {
-		radioTimeslotRepository.UpdateRadioTimeslot(radioTimeslot);
+	public bool UpdateRadioTimeslot(Guid id, RadioTimeslot radioTimeslot) {
+		RadioTimeslot? existingTimeslot = radioTimeslotRepository.GetRadioTimeslot(id);
+		if (existingTimeslot == null) {
+			return false;
+		}
+		radioTimeslotRepository.UpdateRadioTimeslot(existingTimeslot, radioTimeslot);
+		return true;
 	}
 
-	public void DeleteRadioTimeslot(Guid id) {
-		radioTimeslotRepository.DeleteRadioTimeslot(id);
+	public bool DeleteRadioTimeslot(Guid id) {
+		RadioTimeslot? radioTimeslot = this.GetRadioTimeslot(id);
+		if (radioTimeslot == null) {
+			return false;
+		}
+		radioTimeslotRepository.DeleteRadioTimeslot(radioTimeslot);
+		return true;
 	}
 }

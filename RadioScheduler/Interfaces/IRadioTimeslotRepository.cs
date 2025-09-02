@@ -6,6 +6,6 @@ public interface IRadioTimeslotRepository {
 	IEnumerable<RadioTimeslot> GetRadioTimeslots();
 	RadioTimeslot? GetRadioTimeslot(Guid id);
 	RadioTimeslot CreateRadioTimeslot(RadioTimeslot radioTimeslot);
-	void UpdateRadioTimeslot(RadioTimeslot radioTimeslot);
-	void DeleteRadioTimeslot(Guid id);
+	void UpdateRadioTimeslot(RadioTimeslot existingRadioTimeslot, RadioTimeslot newRadioTimeslot);
+	void DeleteRadioTimeslot(RadioTimeslot radioTimeslotToDelete);
 }

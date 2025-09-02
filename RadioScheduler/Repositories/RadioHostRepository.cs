@@ -24,21 +24,13 @@ public class RadioHostRepository : IRadioHostRepository {
 		return radioHost;
 	}
 
-	public void UpdateRadioHost(RadioHost radioHost) {
-		RadioHost? existingRadioHost = this.GetRadioHost(radioHost.Id);
-		if (existingRadioHost == null) {
-			return;
-		}
-
-		existingRadioHost.FirstName = radioHost.FirstName;
-		existingRadioHost.LastName = radioHost.LastName;
-		existingRadioHost.IsGuest = radioHost.IsGuest;
+	public void UpdateRadioHost(RadioHost existingRadioHost, RadioHost newRadioHost) {
+		existingRadioHost.FirstName = newRadioHost.FirstName;
+		existingRadioHost.LastName = newRadioHost.LastName;
+		existingRadioHost.IsGuest = newRadioHost.IsGuest;
 	}
 
-	public void DeleteRadioHost(Guid id) {
-		RadioHost? radioHostToDelete = this.GetRadioHost(id);
-		if (radioHostToDelete != null) {
-			radioHosts.Remove(radioHostToDelete);
-		}
+	public void DeleteRadioHost(RadioHost radioHostToDelete) {
+		radioHosts.Remove(radioHostToDelete);
 	}
 }

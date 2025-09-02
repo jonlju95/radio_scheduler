@@ -1,8 +1,12 @@
 using RadioScheduler.Interfaces;
 using RadioScheduler.Repositories;
 using RadioScheduler.Services;
+using RadioScheduler.Utils.Middleware;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -20,5 +24,7 @@ WebApplication app = builder.Build();
 app.MapControllers();
 
 app.UsePathBase(new PathString("/v1"));
+
+app.UseRequestId();
 
 app.Run();

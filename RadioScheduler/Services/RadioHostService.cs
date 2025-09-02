@@ -20,11 +20,21 @@ public class RadioHostService(IRadioHostRepository radioHostRepository) {
 		return radioHostRepository.CreateRadioHost(radioHost);
 	}
 
-	public void UpdateRadioHost(RadioHost radioHost) {
-		radioHostRepository.UpdateRadioHost(radioHost);
+	public bool UpdateRadioHost(Guid id, RadioHost radioHost) {
+		RadioHost? existingRadioHost = radioHostRepository.GetRadioHost(id);
+		if (existingRadioHost == null) {
+			return false;
+		}
+		radioHostRepository.UpdateRadioHost(existingRadioHost, radioHost);
+		return true;
 	}
 
-	public void DeleteRadioHost(Guid id) {
-		radioHostRepository.DeleteRadioHost(id);
+	public bool DeleteRadioHost(Guid id) {
+		RadioHost? existingRadioHost = radioHostRepository.GetRadioHost(id);
+		if (existingRadioHost == null) {
+			return false;
+		}
+		radioHostRepository.DeleteRadioHost(existingRadioHost);
+		return true;
 	}
 }
