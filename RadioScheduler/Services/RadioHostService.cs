@@ -5,36 +5,39 @@ namespace RadioScheduler.Services;
 
 public class RadioHostService(IRadioHostRepository radioHostRepository) {
 
-	public IEnumerable<RadioHost> GetRadioHosts() {
-		return radioHostRepository.GetRadioHosts();
+	public IEnumerable<RadioHost> GetHosts() {
+		return radioHostRepository.GetHosts();
 	}
 
-	public RadioHost? GetRadioHost(Guid id) {
-		return radioHostRepository.GetRadioHost(id);
+	public RadioHost? GetHost(Guid id) {
+		return radioHostRepository.GetHost(id);
 	}
 
-	public RadioHost AddRadioHost(RadioHost radioHost) {
-		if (radioHost.Id == Guid.Empty) {
-			radioHost.Id = Guid.NewGuid();
+	public RadioHost CreateHost(RadioHost host) {
+		if (host.Id == Guid.Empty) {
+			host.Id = Guid.NewGuid();
 		}
-		return radioHostRepository.CreateRadioHost(radioHost);
+
+		return radioHostRepository.CreateHost(host);
 	}
 
-	public bool UpdateRadioHost(Guid id, RadioHost radioHost) {
-		RadioHost? existingRadioHost = radioHostRepository.GetRadioHost(id);
-		if (existingRadioHost == null) {
+	public bool UpdateHost(Guid id, RadioHost host) {
+		RadioHost? existingHost = radioHostRepository.GetHost(id);
+		if (existingHost == null) {
 			return false;
 		}
-		radioHostRepository.UpdateRadioHost(existingRadioHost, radioHost);
+
+		radioHostRepository.UpdateHost(existingHost, host);
 		return true;
 	}
 
-	public bool DeleteRadioHost(Guid id) {
-		RadioHost? existingRadioHost = radioHostRepository.GetRadioHost(id);
-		if (existingRadioHost == null) {
+	public bool DeleteHost(Guid id) {
+		RadioHost? existingHost = radioHostRepository.GetHost(id);
+		if (existingHost == null) {
 			return false;
 		}
-		radioHostRepository.DeleteRadioHost(existingRadioHost);
+
+		radioHostRepository.DeleteHost(existingHost);
 		return true;
 	}
 }

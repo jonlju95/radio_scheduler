@@ -9,7 +9,7 @@ public class RadioHostController(RadioHostService radioHostService) : BaseApiCon
 
 	[HttpGet]
 	public ActionResult<ResponseObject<List<RadioHost>>> GetRadioHosts() {
-		IEnumerable<RadioHost> radioHosts = radioHostService.GetRadioHosts();
+		IEnumerable<RadioHost> radioHosts = radioHostService.GetHosts();
 
 		return radioHosts is null
 			? this.FailResponse<List<RadioHost>>("NOT_FOUND", $"List {radioHosts} not found")
@@ -18,7 +18,7 @@ public class RadioHostController(RadioHostService radioHostService) : BaseApiCon
 
 	[HttpGet("{id:guid}")]
 	public ActionResult<ResponseObject<RadioHost>> GetRadioHost(Guid id) {
-		RadioHost? radioHost = radioHostService.GetRadioHost(id);
+		RadioHost? radioHost = radioHostService.GetHost(id);
 
 		return radioHost is null
 			? this.FailResponse<RadioHost>("NOT_FOUND", $"Radio host {id} not found")
@@ -31,7 +31,7 @@ public class RadioHostController(RadioHostService radioHostService) : BaseApiCon
 			return this.FailResponse<RadioHost>("BAD_REQUEST", "No radio host provided");
 		}
 
-		RadioHost newRadioHost = radioHostService.AddRadioHost(request.Data);
+		RadioHost newRadioHost = radioHostService.CreateHost(request.Data);
 		return this.OkResponse(newRadioHost);
 	}
 
@@ -41,7 +41,7 @@ public class RadioHostController(RadioHostService radioHostService) : BaseApiCon
 			return this.FailResponse<string>("BAD_REQUEST", "No radio host provided");
 		}
 
-		bool success = radioHostService.UpdateRadioHost(id, request.Data);
+		bool success = radioHostService.UpdateHost(id, request.Data);
 		return !success
 			? this.FailResponse<string>("NOT_FOUND", $"Radio host {id} not found")
 			: this.OkResponse("Radio host updated");
@@ -50,7 +50,7 @@ public class RadioHostController(RadioHostService radioHostService) : BaseApiCon
 
 	[HttpDelete("{id:guid}")]
 	public ActionResult<ResponseObject<string>> DeleteRadioHost(Guid id) {
-		bool success = radioHostService.DeleteRadioHost(id);
+		bool success = radioHostService.DeleteHost(id);
 		return !success
 			? this.FailResponse<string>("NOT_FOUND", $"Radio host {id} not found")
 			: this.OkResponse("Radio host updated");

@@ -1,6 +1,6 @@
 using RadioScheduler.Interfaces;
 using RadioScheduler.Models;
-using RadioScheduler.Utils;
+using RadioScheduler.Utils.JsonReaders;
 
 namespace RadioScheduler.Repositories;
 

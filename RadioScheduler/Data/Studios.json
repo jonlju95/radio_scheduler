@@ -1,0 +1,15 @@
+[
+  {
+    "Id": "fbb3a4a4-48df-4b82-af48-0ccb2f10854a",
+    "Name": "Studio 1",
+    "BookingPrice": 199,
+    "Capacity": 1
+
+},
+  {
+    "Id": "5540e85d-da1e-407b-b0e1-cd315ab74ac6",
+    "Name": "Studio 2",
+    "BookingPrice": 399,
+    "Capacity": 2
+  }
+]

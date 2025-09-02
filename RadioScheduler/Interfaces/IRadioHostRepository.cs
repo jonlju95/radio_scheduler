@@ -3,9 +3,9 @@ using RadioScheduler.Models;
 namespace RadioScheduler.Interfaces;
 
 public interface IRadioHostRepository {
-	IEnumerable<RadioHost> GetRadioHosts();
-	RadioHost? GetRadioHost(Guid id);
-	RadioHost CreateRadioHost(RadioHost radioHost);
-	void UpdateRadioHost(RadioHost existingRadioHost, RadioHost newRadioHost);
-	void DeleteRadioHost(RadioHost radioHostToDelete);
+	IEnumerable<RadioHost> GetHosts();
+	RadioHost? GetHost(Guid id);
+	RadioHost CreateHost(RadioHost host);
+	void UpdateHost(RadioHost existingHost, RadioHost newHost);
+	void DeleteHost(RadioHost hostToDelete);
 }

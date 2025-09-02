@@ -7,30 +7,30 @@ namespace RadioScheduler.Repositories;
 public class RadioHostRepository : IRadioHostRepository {
 	private readonly List<RadioHost> radioHosts = RadioHostJsonReader.GetInMemoryRadioHosts();
 
-	public IEnumerable<RadioHost> GetRadioHosts() {
+	public IEnumerable<RadioHost> GetHosts() {
 		return radioHosts;
 	}
 
-	public RadioHost? GetRadioHost(Guid id) {
+	public RadioHost? GetHost(Guid id) {
 		return radioHosts.FirstOrDefault(x => x.Id == id);
 	}
 
-	public RadioHost CreateRadioHost(RadioHost radioHost) {
-		if (radioHosts.Contains(radioHost)) {
-			return radioHost;
+	public RadioHost CreateHost(RadioHost host) {
+		if (radioHosts.Contains(host)) {
+			return host;
 		}
 
-		radioHosts.Add(radioHost);
-		return radioHost;
+		radioHosts.Add(host);
+		return host;
 	}
 
-	public void UpdateRadioHost(RadioHost existingRadioHost, RadioHost newRadioHost) {
-		existingRadioHost.FirstName = newRadioHost.FirstName;
-		existingRadioHost.LastName = newRadioHost.LastName;
-		existingRadioHost.IsGuest = newRadioHost.IsGuest;
+	public void UpdateHost(RadioHost existingHost, RadioHost newHost) {
+		existingHost.FirstName = newHost.FirstName;
+		existingHost.LastName = newHost.LastName;
+		existingHost.IsGuest = newHost.IsGuest;
 	}
 
-	public void DeleteRadioHost(RadioHost radioHostToDelete) {
-		radioHosts.Remove(radioHostToDelete);
+	public void DeleteHost(RadioHost hostToDelete) {
+		radioHosts.Remove(hostToDelete);
 	}
 }
