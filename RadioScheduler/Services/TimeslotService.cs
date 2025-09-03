@@ -18,19 +18,25 @@ public class TimeslotService(
 	}
 
 	public Timeslot CreateTimeslot(Timeslot timeslot) {
-		if (timeslot.Id == Guid.Empty) {
-			timeslot.Id = Guid.NewGuid();
-		}
-
-		return timeslotRepository.CreateTimeslot(timeslot);
+		Timeslot newTimeslot = new Timeslot(timeslot);
+		return timeslotRepository.CreateTimeslot(newTimeslot);
 	}
 
-	public bool UpdateTimeslot(Guid id, Timeslot timeslot) {
+	public bool UpdateTimeslot(Guid id, Timeslot updatedTimeslot) {
 		Timeslot? existingTimeslot = timeslotRepository.GetTimeslots(id);
 		if (existingTimeslot == null) {
 			return false;
 		}
-		timeslotRepository.UpdateTimeslot(existingTimeslot, timeslot);
+
+		Timeslot newTimeslot = new Timeslot(existingTimeslot) {
+			Start = updatedTimeslot.Start,
+			End = updatedTimeslot.End,
+			ShowId = updatedTimeslot.ShowId,
+			HostIds = updatedTimeslot.HostIds,
+			StudioId = updatedTimeslot.StudioId
+		};
+
+		timeslotRepository.UpdateTimeslot(existingTimeslot, newTimeslot);
 		return true;
 	}
 

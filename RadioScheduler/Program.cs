@@ -3,30 +3,40 @@ using RadioScheduler.Repositories;
 using RadioScheduler.Services;
 using RadioScheduler.Utils.Middleware;
 
-WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+namespace RadioScheduler;
 
-builder.Logging.ClearProviders();
-builder.Logging.AddConsole();
+internal static class Program {
+	private static void Main(string[] args) {
+		WebApplication app = SetupBuilderServices(args);
 
-// Add services to the container.
-builder.Services.AddControllers();
+		app.MapControllers();
+		app.UsePathBase(new PathString("/v1"));
+		app.UseRequestId();
 
-builder.Services.AddSingleton<IRadioShowRepository, RadioShowRepository>();
-builder.Services.AddSingleton<IRadioHostRepository, RadioHostRepository>();
-builder.Services.AddSingleton<ITimeslotRepository, TimeslotRepository>();
-builder.Services.AddSingleton<IStudioRepository, StudioRepository>();
+		app.Run();
+	}
 
-builder.Services.AddScoped<RadioShowService>();
-builder.Services.AddScoped<RadioHostService>();
-builder.Services.AddScoped<TimeslotService>();
-builder.Services.AddScoped<StudioService>();
+	private static WebApplication SetupBuilderServices(string[] args) {
+		WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-WebApplication app = builder.Build();
+		builder.Logging.ClearProviders();
+		builder.Logging.AddConsole();
 
-app.MapControllers();
+		// Add services to the container.
+		builder.Services.AddControllers();
 
-app.UsePathBase(new PathString("/v1"));
+		builder.Services.AddSingleton<IRadioShowRepository, RadioShowRepository>();
+		builder.Services.AddSingleton<IRadioHostRepository, RadioHostRepository>();
+		builder.Services.AddSingleton<IStudioRepository, StudioRepository>();
+		builder.Services.AddSingleton<ITimeslotRepository, TimeslotRepository>();
+		builder.Services.AddSingleton<ITableauRepository, TableauRepository>();
 
-app.UseRequestId();
+		builder.Services.AddScoped<RadioShowService>();
+		builder.Services.AddScoped<RadioHostService>();
+		builder.Services.AddScoped<StudioService>();
+		builder.Services.AddScoped<TimeslotService>();
+		builder.Services.AddScoped<TableauService>();
 
-app.Run();
+		return builder.Build();
+	}
+}

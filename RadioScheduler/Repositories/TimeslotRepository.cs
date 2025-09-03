@@ -24,10 +24,8 @@ public class TimeslotRepository : ITimeslotRepository {
 	}
 
 	public void UpdateTimeslot(Timeslot existingTimeslot, Timeslot newTimeslot) {
-		existingTimeslot.Start = newTimeslot.Start;
-		existingTimeslot.End = newTimeslot.End;
-		existingTimeslot.HostId = newTimeslot.HostId;
-		existingTimeslot.ShowId = newTimeslot.ShowId;
+		int index = timeslots.IndexOf(existingTimeslot);
+		timeslots[index] = newTimeslot;
 	}
 
 	public void DeleteTimeslot(Timeslot timeslotToDelete) {

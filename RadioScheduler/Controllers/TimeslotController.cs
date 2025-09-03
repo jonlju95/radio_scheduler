@@ -27,7 +27,7 @@ public class TimeslotController(TimeslotService timeslotService) : BaseApiContro
 
 	[HttpPost]
 	public ActionResult<ResponseObject<Timeslot>>
-		AddTimeslot([FromBody] RequestObject<Timeslot> request) {
+		CreateTimeslot([FromBody] RequestObject<Timeslot> request) {
 		if (request.Data == null) {
 			return this.FailResponse<Timeslot>("BAD_REQUEST", "No item provided");
 		}
