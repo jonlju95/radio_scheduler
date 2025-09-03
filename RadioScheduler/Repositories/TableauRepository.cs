@@ -31,4 +31,8 @@ public class TableauRepository : ITableauRepository {
 	public void DeleteTableau(Tableau tableauToDelete) {
 		tableaux.Remove(tableauToDelete);
 	}
+
+	public Tableau? GetDailyTableau(DateOnly date) {
+		return tableaux.FirstOrDefault(t => t.Date == date);
+	}
 }

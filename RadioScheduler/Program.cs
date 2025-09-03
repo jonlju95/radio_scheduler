@@ -22,20 +22,24 @@ internal static class Program {
 		builder.Logging.ClearProviders();
 		builder.Logging.AddConsole();
 
-		// Add services to the container.
+		// Controllers
 		builder.Services.AddControllers();
 
+		// Repositories
 		builder.Services.AddSingleton<IRadioShowRepository, RadioShowRepository>();
 		builder.Services.AddSingleton<IRadioHostRepository, RadioHostRepository>();
 		builder.Services.AddSingleton<IStudioRepository, StudioRepository>();
 		builder.Services.AddSingleton<ITimeslotRepository, TimeslotRepository>();
 		builder.Services.AddSingleton<ITableauRepository, TableauRepository>();
+		builder.Services.AddSingleton<IScheduleRepository, ScheduleRepository>();
 
+		// Services
 		builder.Services.AddScoped<RadioShowService>();
 		builder.Services.AddScoped<RadioHostService>();
 		builder.Services.AddScoped<StudioService>();
 		builder.Services.AddScoped<TimeslotService>();
 		builder.Services.AddScoped<TableauService>();
+		builder.Services.AddScoped<ScheduleService>();
 
 		return builder.Build();
 	}

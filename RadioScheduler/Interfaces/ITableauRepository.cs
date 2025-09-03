@@ -8,4 +8,5 @@ public interface ITableauRepository {
 	Tableau CreateTableau(Tableau tableau);
 	void UpdateTableau(Tableau existingTableau, Tableau newTableau);
 	void DeleteTableau(Tableau tableauToDelete);
+	Tableau? GetDailyTableau(DateOnly date);
 }

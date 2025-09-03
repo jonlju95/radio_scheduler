@@ -25,6 +25,19 @@ public class ScheduleController(ScheduleService scheduleService) : BaseApiContro
 			: this.OkResponse(schedule);
 	}
 
+	[HttpGet("daily")]
+	public ActionResult<ResponseObject<Schedule>> GetDailySchedule([FromQuery] string? date) {
+		if (!DateOnly.TryParse(date, out DateOnly parsedDate)) {
+			parsedDate = DateOnly.FromDateTime(DateTime.Now);
+		}
+
+		Schedule? schedule = scheduleService.GetDailySchedule(parsedDate);
+
+		return schedule == null
+			? this.FailResponse<Schedule>("NOT_FOUND", "Schedule not found")
+			: this.OkResponse(schedule);
+	}
+
 	[HttpPost]
 	public ActionResult<ResponseObject<Schedule>> CreateSchedule([FromBody] RequestObject<Schedule> request) {
 		if (request.Data == null) {

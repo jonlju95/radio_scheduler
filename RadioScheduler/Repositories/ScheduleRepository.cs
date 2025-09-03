@@ -14,6 +14,10 @@ public class ScheduleRepository : IScheduleRepository {
 		return schedules.FirstOrDefault(s => s.Id == id);
 	}
 
+	public Schedule? GetDailySchedule(DateOnly date) {
+		return schedules.FirstOrDefault(s => s.StartDate <= date && s.EndDate >= date);
+	}
+
 	public Schedule CreateSchedule(Schedule schedule) {
 		if (schedules.Contains(schedule)) {
 			return schedule;

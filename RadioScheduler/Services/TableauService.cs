@@ -3,7 +3,7 @@ using RadioScheduler.Models;
 
 namespace RadioScheduler.Services;
 
-public class TableauService(ITableauRepository tableauRepository) {
+public class TableauService(ITableauRepository tableauRepository, TimeslotService timeslotService) {
 
 	public IEnumerable<Tableau> GetTableaux() {
 		return tableauRepository.GetTableaux();
@@ -14,7 +14,7 @@ public class TableauService(ITableauRepository tableauRepository) {
 	}
 
 	public Tableau CreateTableau(Tableau tableau) {
-		Tableau newTableau = new Tableau(tableau);
+		Tableau newTableau = new Tableau(Guid.NewGuid(), tableau.Date);
 		return tableauRepository.CreateTableau(newTableau);
 	}
 
@@ -41,5 +41,17 @@ public class TableauService(ITableauRepository tableauRepository) {
 
 		tableauRepository.DeleteTableau(tableau);
 		return true;
+	}
+
+	public List<Tableau> CreateTableauForSchedule(DateOnly startDate, DateOnly endDate) {
+		List<Tableau> tableauList = [];
+		for (DateOnly date = startDate; date <= endDate; date = date.AddDays(1)) {
+			tableauList.Add(tableauRepository.CreateTableau(new Tableau(Guid.NewGuid(), date)));
+		}
+		return tableauList;
+	}
+
+	public Tableau? GetDailyTableau(DateOnly date) {
+		return tableauRepository.GetDailyTableau(date);
 	}
 }

@@ -1,13 +1,12 @@
 using RadioScheduler.Interfaces;
 using RadioScheduler.Models;
-using RadioScheduler.Models.Api;
 
 namespace RadioScheduler.Services;
 
 public class TimeslotService(
 	ITimeslotRepository timeslotRepository,
-	IRadioHostRepository radioHostRepository,
-	IRadioShowRepository radioShowRepository) {
+	RadioHostService radioHostService,
+	RadioShowService radioShowService) {
 
 	public IEnumerable<Timeslot> GetTimeslots() {
 		return timeslotRepository.GetTimeslots();
