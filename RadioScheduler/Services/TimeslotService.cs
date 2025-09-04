@@ -30,9 +30,9 @@ public class TimeslotService(
 		Timeslot newTimeslot = new Timeslot(existingTimeslot) {
 			Start = updatedTimeslot.Start,
 			End = updatedTimeslot.End,
-			ShowId = updatedTimeslot.ShowId,
-			HostIds = updatedTimeslot.HostIds,
-			StudioId = updatedTimeslot.StudioId
+			Show = updatedTimeslot.Show,
+			Hosts = updatedTimeslot.Hosts,
+			Studio = updatedTimeslot.Studio
 		};
 
 		timeslotRepository.UpdateTimeslot(existingTimeslot, newTimeslot);

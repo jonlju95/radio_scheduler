@@ -1,7 +1,7 @@
 namespace RadioScheduler.Models;
 
 public class Studio {
-	public Guid Id { get; init; } = Guid.NewGuid();
+	public Guid Id { get; init; }
 	public string Name { get; set; } = "";
 	public decimal BookingPrice { get; set; }
 	public int Capacity { get; set; }

@@ -5,8 +5,7 @@ namespace RadioScheduler.Services;
 
 public class ScheduleService(
 	IScheduleRepository scheduleRepository,
-	TableauService tableauService,
-	TimeslotService timeslotService) {
+	TableauService tableauService) {
 
 	public IEnumerable<Schedule> GetSchedules() {
 		return scheduleRepository.GetSchedules();

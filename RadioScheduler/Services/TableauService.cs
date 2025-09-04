@@ -3,7 +3,11 @@ using RadioScheduler.Models;
 
 namespace RadioScheduler.Services;
 
-public class TableauService(ITableauRepository tableauRepository, TimeslotService timeslotService) {
+public class TableauService(
+	ITableauRepository tableauRepository,
+	RadioHostService radioHostService,
+	RadioShowService radioShowService,
+	StudioService studioService) {
 
 	public IEnumerable<Tableau> GetTableaux() {
 		return tableauRepository.GetTableaux();
@@ -48,10 +52,31 @@ public class TableauService(ITableauRepository tableauRepository, TimeslotServic
 		for (DateOnly date = startDate; date <= endDate; date = date.AddDays(1)) {
 			tableauList.Add(tableauRepository.CreateTableau(new Tableau(Guid.NewGuid(), date)));
 		}
+
 		return tableauList;
 	}
 
 	public Tableau? GetDailyTableau(DateOnly date) {
-		return tableauRepository.GetDailyTableau(date);
+		Tableau? tableau = tableauRepository.GetDailyTableau(date);
+
+		if (tableau?.Timeslots == null) {
+			return tableau;
+		}
+
+		foreach (Timeslot tableauTimeslot in tableau.Timeslots) {
+			if (tableauTimeslot.Hosts is { Count: > 0 }) {
+				tableauTimeslot.Hosts = radioHostService.GetMultipleHosts(tableauTimeslot.Hosts);
+			}
+
+			if (tableauTimeslot.Show != null) {
+				tableauTimeslot.Show = radioShowService.GetRadioShow(tableauTimeslot.Show.Id);
+			}
+
+			if (tableauTimeslot.Studio != null) {
+				tableauTimeslot.Studio = studioService.GetStudio(tableauTimeslot.Studio.Id);
+			}
+		}
+
+		return tableau;
 	}
 }

@@ -3,8 +3,7 @@ using RadioScheduler.Models;
 
 namespace RadioScheduler.Repositories;
 
-public class TableauRepository : ITableauRepository {
-	private readonly List<Tableau> tableaux = [];
+public class TableauRepository(List<Tableau> tableaux) : ITableauRepository {
 
 	public IEnumerable<Tableau> GetTableaux() {
 		return tableaux;

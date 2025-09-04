@@ -3,8 +3,7 @@ using RadioScheduler.Models;
 
 namespace RadioScheduler.Repositories;
 
-public class TimeslotRepository : ITimeslotRepository {
-	private readonly List<Timeslot> timeslots = [];
+public class TimeslotRepository(List<Timeslot> timeslots) : ITimeslotRepository {
 
 	public IEnumerable<Timeslot> GetTimeslots() {
 		return timeslots;

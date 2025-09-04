@@ -2,21 +2,29 @@ namespace RadioScheduler.Models;
 
 public class Timeslot {
 	public Guid Id { get; init; } = Guid.NewGuid();
-	public DateTime Start { get; set; }
-	public DateTime End { get; set; }
-	public List<Guid> HostIds { get; set; } = [];
-	public Guid ShowId { get; set; }
-	public Guid StudioId { get; set; }
+	public TimeOnly Start { get; set; }
+	public TimeOnly End { get; set; }
+	public List<RadioHost> Hosts { get; set; } = [];
+	public RadioShow? Show { get; set; }
+	public Studio? Studio { get; set; }
 
 	public Timeslot() {
+	}
+
+	public Timeslot(TimeOnly start, TimeOnly end, List<RadioHost> hosts, RadioShow? show, Studio? studio) {
+		this.Start = start;
+		this.End = end;
+		this.Hosts = hosts;
+		this.Show = show;
+		this.Studio = studio;
 	}
 
 	public Timeslot(Timeslot other) {
 		this.Id = other.Id;
 		this.Start = other.Start;
 		this.End = other.End;
-		this.HostIds = other.HostIds;
-		this.ShowId = other.ShowId;
-		this.StudioId = other.StudioId;
+		this.Hosts = other.Hosts;
+		this.Show = other.Show;
+		this.Studio = other.Studio;
 	}
 }

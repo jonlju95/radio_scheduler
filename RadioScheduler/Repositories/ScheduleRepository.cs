@@ -1,10 +1,10 @@
 using RadioScheduler.Interfaces;
 using RadioScheduler.Models;
+using RadioScheduler.Utils.JsonReaders;
 
 namespace RadioScheduler.Repositories;
 
-public class ScheduleRepository : IScheduleRepository {
-	private readonly List<Schedule> schedules = [];
+public class ScheduleRepository(List<Schedule> schedules) : IScheduleRepository {
 
 	public IEnumerable<Schedule> GetSchedules() {
 		return schedules;

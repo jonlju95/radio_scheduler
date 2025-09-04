@@ -1,0 +1,44 @@
+[
+  {
+    "id": "a7ca1c96-09e5-4d2e-b3bc-e38a04b6761e",
+    "startDate": "2025-09-03",
+    "endDate": "2025-09-09",
+    "tableaux": [
+      {
+        "id": "cc6a1f88-eefe-4f58-802f-9e14cb81b27e",
+        "date": "2025-09-03",
+        "timeslots": []
+      },
+      {
+        "id": "75679db6-e4d2-422b-bdae-47dd91da59b5",
+        "date": "2025-09-04",
+        "timeslots": []
+      },
+      {
+        "id": "fb882b55-6937-4625-b567-b2a98a840a7d",
+        "date": "2025-09-05",
+        "timeslots": []
+      },
+      {
+        "id": "89207c77-9e07-4076-8943-b02d5901e76d",
+        "date": "2025-09-06",
+        "timeslots": []
+      },
+      {
+        "id": "343a6154-bf91-4317-a612-d54869c8e615",
+        "date": "2025-09-07",
+        "timeslots": []
+      },
+      {
+        "id": "d2c1fe80-8cee-4596-84db-d6581febba55",
+        "date": "2025-09-08",
+        "timeslots": []
+      },
+      {
+        "id": "792ebaa6-385e-467b-b0f4-eb365a6ccaed",
+        "date": "2025-09-09",
+        "timeslots": []
+      }
+    ]
+  }
+]

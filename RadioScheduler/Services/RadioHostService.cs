@@ -40,4 +40,10 @@ public class RadioHostService(IRadioHostRepository radioHostRepository) {
 		radioHostRepository.DeleteHost(existingHost);
 		return true;
 	}
+
+	public List<RadioHost> GetMultipleHosts(List<RadioHost> timeslotHosts) {
+		List<RadioHost> multipleHosts = [];
+		multipleHosts.AddRange(timeslotHosts.Select(radioHost => radioHostRepository.GetHost(radioHost!.Id))!);
+		return multipleHosts;
+	}
 }
