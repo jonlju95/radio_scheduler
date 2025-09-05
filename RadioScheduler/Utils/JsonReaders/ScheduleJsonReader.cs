@@ -54,8 +54,8 @@ public static class ScheduleJsonReader {
 		List<RadioHost> randomHosts = GenerateRadioHosts(rnd);
 
 		return new Timeslot {
-			Start = new TimeOnly(hour, 0),
-			End = new TimeOnly(Math.Min(hour + 2, 23), Math.Min(hour + 2, 23) == 23 ? 59 : 0),
+			StartTime = new TimeOnly(hour, 0),
+			EndTime = new TimeOnly(Math.Min(hour + 2, 23), Math.Min(hour + 2, 23) == 23 ? 59 : 0),
 			Hosts = randomHosts,
 			Show = new RadioShow { Id = radioShowIds[rnd.Next(0, 3)] },
 			Studio = new Studio {

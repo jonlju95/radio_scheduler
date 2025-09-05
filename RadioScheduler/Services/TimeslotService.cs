@@ -28,8 +28,8 @@ public class TimeslotService(
 		}
 
 		Timeslot newTimeslot = new Timeslot(existingTimeslot) {
-			Start = updatedTimeslot.Start,
-			End = updatedTimeslot.End,
+			StartTime = updatedTimeslot.StartTime,
+			EndTime = updatedTimeslot.EndTime,
 			Show = updatedTimeslot.Show,
 			Hosts = updatedTimeslot.Hosts,
 			Studio = updatedTimeslot.Studio

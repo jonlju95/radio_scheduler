@@ -1,7 +1,9 @@
+using Dapper;
 using RadioScheduler.Interfaces;
 using RadioScheduler.Models;
 using RadioScheduler.Repositories;
 using RadioScheduler.Services;
+using RadioScheduler.Utils.DatabaseHandlers;
 using RadioScheduler.Utils.JsonReaders;
 using RadioScheduler.Utils.Middleware;
 
@@ -31,6 +33,11 @@ internal static class Program {
 
 		List<Timeslot> timeslots = tableaux.SelectMany(tableau => tableau.Timeslots).ToList();
 
+		SqlMapper.AddTypeHandler(new DateOnlyHandler());
+		SqlMapper.AddTypeHandler(new TimeOnlyHandler());
+		SqlMapper.AddTypeHandler(new GuidHandler());
+
+		DefaultTypeMap.MatchNamesWithUnderscores = true;
 
 		// Controllers
 		builder.Services.AddControllers();
@@ -41,7 +48,7 @@ internal static class Program {
 		builder.Services.AddSingleton<IStudioRepository, StudioRepository>();
 		builder.Services.AddSingleton<ITimeslotRepository>(new TimeslotRepository(timeslots));
 		builder.Services.AddSingleton<ITableauRepository>(new TableauRepository(tableaux));
-		builder.Services.AddSingleton<IScheduleRepository>(new ScheduleRepository(schedules));
+		builder.Services.AddSingleton<IScheduleRepository, ScheduleRepository>();
 
 		// Services
 		builder.Services.AddScoped<RadioShowService>();

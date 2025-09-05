@@ -30,7 +30,11 @@ public class ScheduleService(
 		return dailySchedule;
 	}
 
-	public Schedule CreateSchedule(Schedule schedule) {
+	public Schedule? CreateSchedule(Schedule schedule) {
+		if (this.GetSchedule(schedule.Id) != null) {
+			return schedule;
+		}
+
 		Schedule newSchedule = new Schedule(
 			Guid.NewGuid(),
 			schedule.StartDate,
@@ -55,7 +59,7 @@ public class ScheduleService(
 			Tableaux = updatedSchedule.Tableaux
 		};
 
-		scheduleRepository.UpdateSchedule(existingSchedule, newSchedule);
+		scheduleRepository.UpdateSchedule(newSchedule);
 		return true;
 	}
 
@@ -65,7 +69,7 @@ public class ScheduleService(
 			return false;
 		}
 
-		scheduleRepository.DeleteSchedule(scheduleToDelete);
+		scheduleRepository.DeleteSchedule(id);
 		return true;
 	}
 }

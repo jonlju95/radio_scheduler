@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.Sqlite;
 using RadioScheduler.Models;
 using RadioScheduler.Models.Api;
 using RadioScheduler.Services;
@@ -39,12 +40,12 @@ public class ScheduleController(ScheduleService scheduleService) : BaseApiContro
 	}
 
 	[HttpPost]
-	public ActionResult<ResponseObject<Schedule>> CreateSchedule([FromBody] RequestObject<Schedule> request) {
+	public ActionResult<ResponseObject<Schedule?>> CreateSchedule([FromBody] RequestObject<Schedule> request) {
 		if (request.Data == null) {
-			return this.FailResponse<Schedule>("BAD_REQUEST", "No schedule data provided");
+			return this.FailResponse<Schedule?>("BAD_REQUEST", "No schedule data provided");
 		}
 
-		Schedule newSchedule = scheduleService.CreateSchedule(request.Data);
+		Schedule? newSchedule = scheduleService.CreateSchedule(request.Data);
 		return this.OkResponse(newSchedule);
 	}
 
@@ -55,16 +56,16 @@ public class ScheduleController(ScheduleService scheduleService) : BaseApiContro
 		}
 
 		bool success = scheduleService.UpdateSchedule(id, request.Data);
-		return !success ?
-			this.FailResponse<string>("NOT_FOUND", $"Schedule {id} not found") :
-			this.OkResponse("Schedule updated");
+		return !success
+			? this.FailResponse<string>("NOT_FOUND", $"Schedule {id} not found")
+			: this.OkResponse("Schedule updated");
 	}
 
 	[HttpDelete("{id:guid}")]
 	public ActionResult<ResponseObject<string>> DeleteSchedule(Guid id) {
 		bool success = scheduleService.DeleteSchedule(id);
-		return !success ?
-			this.FailResponse<string>("NOT_FOUND", $"Schedule {id} not found") :
-			this.OkResponse("Schedule deleted");
+		return !success
+			? this.FailResponse<string>("NOT_FOUND", $"Schedule {id} not found")
+			: this.OkResponse("Schedule deleted");
 	}
 }
