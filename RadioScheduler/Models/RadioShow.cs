@@ -13,4 +13,10 @@ public class RadioShow {
 		this.Name = name;
 		this.DurationMinutes = durationMinutes;
 	}
+
+	public RadioShow(RadioShow other) {
+		this.Id = other.Id;
+		this.Name = other.Name;
+		this.DurationMinutes = other.DurationMinutes;
+	}
 }

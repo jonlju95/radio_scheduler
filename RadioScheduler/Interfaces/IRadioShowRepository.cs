@@ -3,9 +3,9 @@ using RadioScheduler.Models;
 namespace RadioScheduler.Interfaces;
 
 public interface IRadioShowRepository {
-	IEnumerable<RadioShow> GetRadioShows();
-	RadioShow? GetRadioShow(Guid id);
-	RadioShow CreateRadioShow(RadioShow radioShow);
-	void UpdateRadioShow(RadioShow existingRadioShow, RadioShow newRadioShow);
-	void DeleteRadioShow(RadioShow radioShowToDelete);
+	Task<IEnumerable<RadioShow>> GetRadioShows();
+	Task<RadioShow?> GetRadioShow(Guid id);
+	Task CreateRadioShow(RadioShow radioShow);
+	Task UpdateRadioShow(RadioShow newRadioShow);
+	Task DeleteRadioShow(Guid id);
 }

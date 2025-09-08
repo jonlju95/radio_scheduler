@@ -1,71 +1,51 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.Sqlite;
 using RadioScheduler.Models;
 using RadioScheduler.Models.Api;
 using RadioScheduler.Services;
 
 namespace RadioScheduler.Controllers;
 
-public class ScheduleController(ScheduleService scheduleService) : BaseApiController {
+public class ScheduleController(ScheduleService scheduleService, ApiResponse apiResponse) : BaseApiController {
 
 	[HttpGet]
-	public ActionResult<ResponseObject<List<Schedule>>> GetSchedules() {
-		IEnumerable<Schedule> schedules = scheduleService.GetSchedules();
+	public async Task<IActionResult> GetSchedules() {
+		apiResponse.Data = await scheduleService.GetSchedules(apiResponse);
 
-		return schedules == null
-			? this.FailResponse<List<Schedule>>("NOT_FOUND", $"List {schedules} not found")
-			: this.OkResponse(schedules.ToList());
+		return this.Ok(apiResponse);
 	}
 
 	[HttpGet("{id:guid}")]
-	public ActionResult<ResponseObject<Schedule>> GetSchedule(Guid id) {
-		Schedule? schedule = scheduleService.GetSchedule(id);
+	public async Task<IActionResult> GetSchedule(Guid id) {
+		apiResponse.Data = await scheduleService.GetSchedule(apiResponse, id);
 
-		return schedule == null
-			? this.FailResponse<Schedule>("NOT_FOUND", $"Schedule {id} not found")
-			: this.OkResponse(schedule);
+		return this.Ok(apiResponse);
 	}
 
 	[HttpGet("daily")]
-	public ActionResult<ResponseObject<Schedule>> GetDailySchedule([FromQuery] string? date) {
-		if (!DateOnly.TryParse(date, out DateOnly parsedDate)) {
-			parsedDate = DateOnly.FromDateTime(DateTime.Now);
-		}
+	public async Task<IActionResult> GetDailySchedule([FromQuery] string? date) {
+		apiResponse.Data = await scheduleService.GetDailySchedule(apiResponse, date);
 
-		Schedule? schedule = scheduleService.GetDailySchedule(parsedDate);
-
-		return schedule == null
-			? this.FailResponse<Schedule>("NOT_FOUND", "Schedule not found")
-			: this.OkResponse(schedule);
+		return this.Ok(apiResponse);
 	}
 
 	[HttpPost]
-	public ActionResult<ResponseObject<Schedule?>> CreateSchedule([FromBody] RequestObject<Schedule> request) {
-		if (request.Data == null) {
-			return this.FailResponse<Schedule?>("BAD_REQUEST", "No schedule data provided");
-		}
+	public async Task<IActionResult> CreateSchedule([FromBody] Schedule schedule) {
+		apiResponse.Data = await scheduleService.CreateSchedule(apiResponse, schedule);
 
-		Schedule? newSchedule = scheduleService.CreateSchedule(request.Data);
-		return this.OkResponse(newSchedule);
+		return this.Ok(apiResponse);
 	}
 
 	[HttpPut("{id:guid}")]
-	public ActionResult<ResponseObject<string>> UpdateSchedule(Guid id, [FromBody] RequestObject<Schedule> request) {
-		if (request.Data == null) {
-			return this.FailResponse<string>("BAD_REQUEST", "No schedule data provided");
-		}
+	public async Task<IActionResult> UpdateSchedule(Guid id, [FromBody] Schedule schedule) {
+		apiResponse.Data = await scheduleService.UpdateSchedule(apiResponse, id, schedule);
 
-		bool success = scheduleService.UpdateSchedule(id, request.Data);
-		return !success
-			? this.FailResponse<string>("NOT_FOUND", $"Schedule {id} not found")
-			: this.OkResponse("Schedule updated");
+		return this.Ok(apiResponse);
 	}
 
 	[HttpDelete("{id:guid}")]
-	public ActionResult<ResponseObject<string>> DeleteSchedule(Guid id) {
-		bool success = scheduleService.DeleteSchedule(id);
-		return !success
-			? this.FailResponse<string>("NOT_FOUND", $"Schedule {id} not found")
-			: this.OkResponse("Schedule deleted");
+	public async Task<IActionResult> DeleteSchedule(Guid id) {
+		apiResponse.Data = await scheduleService.DeleteSchedule(apiResponse, id);
+
+		return this.Ok(apiResponse);
 	}
 }

@@ -1,50 +1,82 @@
 using RadioScheduler.Interfaces;
 using RadioScheduler.Models;
+using RadioScheduler.Models.Api;
 
 namespace RadioScheduler.Services;
 
-public class TimeslotService(
-	ITimeslotRepository timeslotRepository,
-	RadioHostService radioHostService,
-	RadioShowService radioShowService) {
+public class TimeslotService(ITimeslotRepository timeslotRepository) {
 
-	public IEnumerable<Timeslot> GetTimeslots() {
-		return timeslotRepository.GetTimeslots();
+	public async Task<IEnumerable<Timeslot>> GetTimeslots(ApiResponse apiResponse) {
+		IEnumerable<Timeslot> timeslots = await timeslotRepository.GetTimeslots();
+
+		if (timeslots != null) {
+			return timeslots;
+		}
+
+		apiResponse.Error.Add(new ErrorInfo { Code = "NOT_FOUND", Message = "List not found" });
+		apiResponse.Success = false;
+
+		return timeslots;
 	}
 
-	public Timeslot? GetTimeslot(Guid id) {
-		return timeslotRepository.GetTimeslots(id);
+	public async Task<Timeslot?> GetTimeslot(ApiResponse apiResponse, Guid id) {
+		Timeslot? timeslot = await timeslotRepository.GetTimeslot(id);
+
+		if (timeslot != null) {
+			return timeslot;
+		}
+		apiResponse.Error.Add(new ErrorInfo { Code = "NOT_FOUND", Message = "Timeslot not found" });
+		apiResponse.Success = false;
+
+		return timeslot;
 	}
 
-	public Timeslot CreateTimeslot(Timeslot timeslot) {
+	public async Task<Timeslot?> CreateTimeslot(ApiResponse apiResponse, Timeslot timeslot) {
+		if (timeslot == null) {
+			apiResponse.Error.Add(new ErrorInfo { Code = "BAD_REQUEST", Message = "Timeslot data not provided" });
+			apiResponse.Success = false;
+			return null;
+		}
+
+		if (await this.GetTimeslot(apiResponse, timeslot.Id) != null) {
+			apiResponse.Error.Add(new ErrorInfo { Code = "CANCELLED", Message = "Timeslot already exists" });
+			apiResponse.Success = false;
+			return null;
+		}
+
 		Timeslot newTimeslot = new Timeslot(timeslot);
-		return timeslotRepository.CreateTimeslot(newTimeslot);
+
+		await timeslotRepository.CreateTimeslot(newTimeslot);
+		return newTimeslot;
 	}
 
-	public bool UpdateTimeslot(Guid id, Timeslot updatedTimeslot) {
-		Timeslot? existingTimeslot = timeslotRepository.GetTimeslots(id);
-		if (existingTimeslot == null) {
+	public async Task<bool> UpdateTimeslot(ApiResponse apiResponse, Guid id, Timeslot updatedTimeslot) {
+		if (updatedTimeslot == null) {
+			apiResponse.Error.Add(new ErrorInfo { Code = "BAD_REQUEST", Message = "Timeslot data not provided" });
+			apiResponse.Success = false;
 			return false;
 		}
 
-		Timeslot newTimeslot = new Timeslot(existingTimeslot) {
-			StartTime = updatedTimeslot.StartTime,
-			EndTime = updatedTimeslot.EndTime,
-			Show = updatedTimeslot.Show,
-			Hosts = updatedTimeslot.Hosts,
-			Studio = updatedTimeslot.Studio
-		};
+		if (await this.GetTimeslot(apiResponse, id) == null) {
+			apiResponse.Error.Add(new ErrorInfo { Code = "NOT_FOUND", Message = "Timeslot not found" });
+			apiResponse.Success = false;
+			return false;
+		}
 
-		timeslotRepository.UpdateTimeslot(existingTimeslot, newTimeslot);
+		Timeslot newTimeslot = new Timeslot(updatedTimeslot);
+
+		await timeslotRepository.UpdateTimeslot(newTimeslot);
 		return true;
 	}
 
-	public bool DeleteTimeslot(Guid id) {
-		Timeslot? timeslot = this.GetTimeslot(id);
-		if (timeslot == null) {
+	public async Task<bool> DeleteTimeslot(ApiResponse apiResponse, Guid id) {
+		if (await this.GetTimeslot(apiResponse, id) == null) {
+			apiResponse.Error.Add(new ErrorInfo { Code = "NOT_FOUND", Message = "Timeslot not found" });
+			apiResponse.Success = false;
 			return false;
 		}
-		timeslotRepository.DeleteTimeslot(timeslot);
+
+		await timeslotRepository.DeleteTimeslot(id);
 		return true;
 	}
 }

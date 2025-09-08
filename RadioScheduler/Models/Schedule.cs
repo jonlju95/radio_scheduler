@@ -6,7 +6,7 @@ public class Schedule {
 	public Guid Id { get; set; }
 	public DateOnly StartDate { get; set; }
 	public DateOnly EndDate { get; set; }
-	public ICollection<Tableau> Tableaux { get; set; } = new List<Tableau>();
+	public ICollection<Guid?> TableauIds { get; set; } = new List<Guid?>();
 
 	public Schedule() {
 	}
@@ -21,6 +21,6 @@ public class Schedule {
 		this.Id = other.Id;
 		this.StartDate = other.StartDate;
 		this.EndDate = other.EndDate;
-		this.Tableaux = other.Tableaux;
+		this.TableauIds = other.TableauIds;
 	}
 }

@@ -5,55 +5,42 @@ using RadioScheduler.Services;
 
 namespace RadioScheduler.Controllers;
 
-public class RadioHostController(RadioHostService radioHostService) : BaseApiController {
+public class RadioHostController(
+	RadioHostService radioHostService,
+	ApiResponse apiResponse) : BaseApiController {
 
 	[HttpGet]
-	public ActionResult<ResponseObject<List<RadioHost>>> GetRadioHosts() {
-		IEnumerable<RadioHost> radioHosts = radioHostService.GetHosts();
+	public async Task<IActionResult> GetRadioHosts() {
+		apiResponse.Data = await radioHostService.GetHosts(apiResponse);
 
-		return radioHosts is null
-			? this.FailResponse<List<RadioHost>>("NOT_FOUND", $"List {radioHosts} not found")
-			: this.OkResponse(radioHosts.ToList());
+		return this.Ok(apiResponse);
 	}
 
 	[HttpGet("{id:guid}")]
-	public ActionResult<ResponseObject<RadioHost>> GetRadioHost(Guid id) {
-		RadioHost? radioHost = radioHostService.GetHost(id);
+	public async Task<IActionResult> GetRadioHost(Guid id) {
+		apiResponse.Data = await radioHostService.GetHost(apiResponse, id);
 
-		return radioHost is null
-			? this.FailResponse<RadioHost>("NOT_FOUND", $"Radio host {id} not found")
-			: this.OkResponse(radioHost);
+		return this.Ok(apiResponse);
 	}
 
 	[HttpPost]
-	public ActionResult<ResponseObject<RadioHost>> AddRadioHost([FromBody] RequestObject<RadioHost> request) {
-		if (request.Data == null) {
-			return this.FailResponse<RadioHost>("BAD_REQUEST", "No radio host provided");
-		}
+	public async Task<IActionResult> AddRadioHost([FromBody] RadioHost radioHost) {
+		apiResponse.Data = await radioHostService.CreateHost(apiResponse, radioHost);
 
-		RadioHost newRadioHost = radioHostService.CreateHost(request.Data);
-		return this.OkResponse(newRadioHost);
+		return this.Ok(apiResponse);
 	}
 
 	[HttpPut("{id:guid}")]
-	public ActionResult<ResponseObject<string>> UpdateRadioHost(Guid id, [FromBody] RequestObject<RadioHost> request) {
-		if (request.Data == null) {
-			return this.FailResponse<string>("BAD_REQUEST", "No radio host provided");
-		}
+	public async Task<IActionResult> UpdateRadioHost(Guid id, [FromBody] RadioHost radioHost) {
+		apiResponse.Data = await radioHostService.UpdateHost(apiResponse, id, radioHost);
 
-		bool success = radioHostService.UpdateHost(id, request.Data);
-		return !success
-			? this.FailResponse<string>("NOT_FOUND", $"Radio host {id} not found")
-			: this.OkResponse("Radio host updated");
-		;
+		return this.Ok(apiResponse);
 	}
 
 	[HttpDelete("{id:guid}")]
-	public ActionResult<ResponseObject<string>> DeleteRadioHost(Guid id) {
-		bool success = radioHostService.DeleteHost(id);
-		return !success
-			? this.FailResponse<string>("NOT_FOUND", $"Radio host {id} not found")
-			: this.OkResponse("Radio host updated");
-		;
+	public async Task<IActionResult> DeleteRadioHost(Guid id) {
+		apiResponse.Data = await radioHostService.DeleteHost(apiResponse, id);
+
+		return this.Ok(apiResponse);
 	}
 }

@@ -3,10 +3,10 @@ using RadioScheduler.Models;
 namespace RadioScheduler.Interfaces;
 
 public interface ITableauRepository {
-	IEnumerable<Tableau> GetTableaux();
-	Tableau? GetTableau(Guid id);
-	Tableau CreateTableau(Tableau tableau);
-	void UpdateTableau(Tableau existingTableau, Tableau newTableau);
-	void DeleteTableau(Tableau tableauToDelete);
-	Tableau? GetDailyTableau(DateOnly date);
+	Task<IEnumerable<Tableau>> GetTableaux();
+	Task<Tableau?> GetTableau(Guid id);
+	Task<Tableau?> GetDailyTableau(DateOnly date);
+	Task CreateTableau(Tableau tableau);
+	Task UpdateTableau(Tableau newTableau);
+	Task DeleteTableau(Guid id);
 }

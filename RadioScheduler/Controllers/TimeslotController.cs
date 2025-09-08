@@ -5,55 +5,40 @@ using RadioScheduler.Services;
 
 namespace RadioScheduler.Controllers;
 
-public class TimeslotController(TimeslotService timeslotService) : BaseApiController {
+public class TimeslotController(TimeslotService timeslotService, ApiResponse apiResponse) : BaseApiController {
 
 	[HttpGet]
-	public ActionResult<ResponseObject<List<Timeslot>>> GetTimeslots() {
-		IEnumerable<Timeslot> timeslots = timeslotService.GetTimeslots();
+	public async Task<IActionResult> GetTimeslots() {
+		apiResponse.Data = await timeslotService.GetTimeslots(apiResponse);
 
-		return timeslots is null
-			? this.FailResponse<List<Timeslot>>("NOT_FOUND", $"List {timeslots} not found")
-			: this.OkResponse(timeslots.ToList());
+		return this.Ok(apiResponse);
 	}
 
 	[HttpGet("{id:guid}")]
-	public ActionResult<ResponseObject<Timeslot>> GetTimeslot(Guid id) {
-		Timeslot? timeslot = timeslotService.GetTimeslot(id);
+	public async Task<IActionResult> GetTimeslot(Guid id) {
+		apiResponse.Data = await timeslotService.GetTimeslot(apiResponse, id);
 
-		return timeslot is null
-			? this.FailResponse<Timeslot>("NOT_FOUND", $"Timeslot not found {id}")
-			: this.OkResponse(timeslot);
+		return this.Ok(apiResponse);
 	}
 
 	[HttpPost]
-	public ActionResult<ResponseObject<Timeslot>>
-		CreateTimeslot([FromBody] RequestObject<Timeslot> request) {
-		if (request.Data == null) {
-			return this.FailResponse<Timeslot>("BAD_REQUEST", "No item provided");
-		}
+	public async Task<IActionResult> CreateTimeslot([FromBody] Timeslot timeslot) {
+		apiResponse.Data = await timeslotService.CreateTimeslot(apiResponse, timeslot);
 
-		Timeslot newTimeslot = timeslotService.CreateTimeslot(request.Data);
-		return this.OkResponse(newTimeslot);
+		return this.Ok(apiResponse);
 	}
 
 	[HttpPut("{id:guid}")]
-	public ActionResult<ResponseObject<string>> UpdateTimeslot(Guid id,
-		[FromBody] RequestObject<Timeslot> request) {
-		if (request.Data is null) {
-			return this.FailResponse<string>("BAD_REQUEST", "No item provided");
-		}
+	public async Task<IActionResult> UpdateTimeslot(Guid id, [FromBody] Timeslot timeslot) {
+		apiResponse.Data = await timeslotService.UpdateTimeslot(apiResponse, id, timeslot);
 
-		bool success = timeslotService.UpdateTimeslot(id, request.Data);
-		return !success
-			? this.FailResponse<string>("NOT_FOUND", $"Timeslot not found {id}")
-			: this.OkResponse("Timeslot updated");
+		return this.Ok(apiResponse);
 	}
 
 	[HttpDelete("{id:guid}")]
-	public ActionResult<ResponseObject<string>> DeleteTimeslot(Guid id) {
-		bool success = timeslotService.DeleteTimeslot(id);
-		return !success
-			? this.FailResponse<string>("NOT_FOUND", "Timeslot not found")
-			: this.OkResponse("Timeslot deleted");
+	public async Task<IActionResult> DeleteTimeslot(Guid id) {
+		apiResponse.Data = await timeslotService.DeleteTimeslot(apiResponse, id);
+
+		return this.Ok(apiResponse);
 	}
 }

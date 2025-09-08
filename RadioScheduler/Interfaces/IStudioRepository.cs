@@ -3,9 +3,9 @@ using RadioScheduler.Models;
 namespace RadioScheduler.Interfaces;
 
 public interface IStudioRepository {
-	IEnumerable<Studio> GetStudios();
-	Studio? GetStudio(Guid id);
-	Studio CreateStudio(Studio studio);
-	void UpdateStudio(Studio existingStudio, Studio updatedStudio);
-	void DeleteStudio(Studio studioToDelete);
+	Task<IEnumerable<Studio>> GetStudios();
+	Task<Studio?> GetStudio(Guid id);
+	Task CreateStudio(Studio studio);
+	Task UpdateStudio(Studio updatedStudio);
+	Task DeleteStudio(Guid id);
 }

@@ -1,5 +1,6 @@
 using RadioScheduler.Interfaces;
 using RadioScheduler.Models;
+using RadioScheduler.Models.Api;
 
 namespace RadioScheduler.Services;
 
@@ -7,69 +8,106 @@ public class ScheduleService(
 	IScheduleRepository scheduleRepository,
 	TableauService tableauService) {
 
-	public IEnumerable<Schedule> GetSchedules() {
-		return scheduleRepository.GetSchedules();
+	public async Task<IEnumerable<Schedule>?> GetSchedules(ApiResponse apiResponse) {
+		IEnumerable<Schedule> schedules = await scheduleRepository.GetSchedules();
+
+		if (schedules != null) {
+			return schedules;
+		}
+
+		apiResponse.Error.Add(new ErrorInfo { Code = "NOT_FOUND", Message = "List not found" });
+		apiResponse.Success = false;
+
+		return schedules;
 	}
 
-	public Schedule? GetSchedule(Guid id) {
-		return scheduleRepository.GetSchedule(id);
+	public async Task<Schedule?> GetSchedule(ApiResponse apiResponse, Guid id) {
+		Schedule? schedule = await scheduleRepository.GetSchedule(id);
+
+		if (schedule != null) {
+			return schedule;
+		}
+
+		apiResponse.Error.Add(new ErrorInfo { Code = "NOT_FOUND", Message = "Schedule not found" });
+		apiResponse.Success = false;
+
+		return schedule;
 	}
 
-	public Schedule? GetDailySchedule(DateOnly date) {
-		Schedule? dailySchedule = scheduleRepository.GetDailySchedule(date);
-		if (dailySchedule == null) {
+	public async Task<Schedule?> GetDailySchedule(ApiResponse apiResponse, string? date) {
+		if (!DateOnly.TryParse(date, out DateOnly parsedDate)) {
+			apiResponse.Error.Add(new ErrorInfo { Code = "INVALID_DATE_ONLY", Message = "Invalid date format" });
+			apiResponse.Success = false;
 			return null;
 		}
 
-		Tableau? dailyTableau = tableauService.GetDailyTableau(date);
+		Schedule? dailySchedule = await scheduleRepository.GetDailySchedule(parsedDate);
+
+		if (dailySchedule == null) {
+			apiResponse.Error.Add(new ErrorInfo { Code = "NOT_FOUND", Message = "Schedule not found" });
+			apiResponse.Success = false;
+			return null;
+		}
+
+		Tableau? dailyTableau = await tableauService.GetDailyTableau(apiResponse, parsedDate);
 
 		if (dailyTableau != null) {
-			dailySchedule.Tableaux = [dailyTableau];
+			// dailySchedule.TableauIds = [dailyTableau];
 		}
 
 		return dailySchedule;
 	}
 
-	public Schedule? CreateSchedule(Schedule schedule) {
-		if (this.GetSchedule(schedule.Id) != null) {
-			return schedule;
+	public async Task<Schedule?> CreateSchedule(ApiResponse apiResponse, Schedule schedule) {
+		if (schedule == null) {
+			apiResponse.Error.Add(new ErrorInfo { Code = "BAD_REQUEST", Message = "Schedule data not provided" });
+			apiResponse.Success = false;
+			return null;
 		}
 
-		Schedule newSchedule = new Schedule(
-			Guid.NewGuid(),
-			schedule.StartDate,
-			schedule.EndDate == DateOnly.Parse("0001-01-01")
-				? schedule.StartDate.AddDays(6)
-				: schedule.EndDate
-		);
+		if (await this.GetSchedule(apiResponse, schedule.Id) != null) {
+			apiResponse.Error.Add(new ErrorInfo { Code = "CANCELLED", Message = "Schedule already exists" });
+			apiResponse.Success = false;
+			return null;
+		}
 
-		newSchedule.Tableaux = tableauService.CreateTableauForSchedule(newSchedule.StartDate, newSchedule.EndDate);
-		return scheduleRepository.CreateSchedule(newSchedule);
+		Schedule newSchedule = new Schedule(schedule);
+
+		await scheduleRepository.CreateSchedule(newSchedule);
+		return newSchedule;
+
+		// newSchedule.TableauIds = tableauService.CreateTableauForSchedule(newSchedule.Id, newSchedule.StartDate, newSchedule.EndDate);
 	}
 
-	public bool UpdateSchedule(Guid id, Schedule updatedSchedule) {
-		Schedule? existingSchedule = this.GetSchedule(id);
-		if (existingSchedule == null) {
+	public async Task<bool> UpdateSchedule(ApiResponse apiResponse, Guid id, Schedule updatedSchedule) {
+		if (updatedSchedule == null) {
+			apiResponse.Error.Add(new ErrorInfo { Code = "BAD_REQUEST", Message = "Schedule data not provided" });
+			apiResponse.Success = false;
 			return false;
 		}
 
-		Schedule newSchedule = new Schedule(updatedSchedule) {
-			StartDate = updatedSchedule.StartDate,
-			EndDate = updatedSchedule.EndDate,
-			Tableaux = updatedSchedule.Tableaux
-		};
+		Schedule? existingSchedule = await this.GetSchedule(apiResponse, id);
+		if (existingSchedule == null) {
+			apiResponse.Error.Add(new ErrorInfo { Code = "NOT_FOUND", Message = "Schedule not found" });
+			apiResponse.Success = false;
+			return false;
+		}
 
-		scheduleRepository.UpdateSchedule(newSchedule);
+		Schedule newSchedule = new Schedule(updatedSchedule);
+
+		await scheduleRepository.UpdateSchedule(newSchedule);
 		return true;
 	}
 
-	public bool DeleteSchedule(Guid id) {
-		Schedule? scheduleToDelete = this.GetSchedule(id);
+	public async Task<bool> DeleteSchedule(ApiResponse apiResponse, Guid id) {
+		Schedule? scheduleToDelete = await this.GetSchedule(apiResponse, id);
 		if (scheduleToDelete == null) {
+			apiResponse.Error.Add(new ErrorInfo { Code = "NOT_FOUND", Message = "Schedule not found" });
+			apiResponse.Success = false;
 			return false;
 		}
 
-		scheduleRepository.DeleteSchedule(id);
+		await scheduleRepository.DeleteSchedule(id);
 		return true;
 	}
 }

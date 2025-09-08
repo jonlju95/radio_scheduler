@@ -5,53 +5,40 @@ using RadioScheduler.Services;
 
 namespace RadioScheduler.Controllers;
 
-public class TableauController(TableauService tableauService) : BaseApiController {
+public class TableauController(TableauService tableauService, ApiResponse apiResponse) : BaseApiController {
 
 	[HttpGet]
-	public ActionResult<ResponseObject<List<Tableau>>> GetTableaux() {
-		IEnumerable<Tableau> tableaux = tableauService.GetTableaux();
+	public async Task<IActionResult> GetTableaux() {
+		apiResponse.Data = await tableauService.GetTableaux(apiResponse);
 
-		return tableaux is null
-			? this.FailResponse<List<Tableau>>("NOT_FOUND", $"List {tableaux} not found")
-			: this.OkResponse(tableaux.ToList());
+		return this.Ok(apiResponse);
 	}
 
 	[HttpGet("{id:guid}")]
-	public ActionResult<ResponseObject<Tableau>> GetTableau(Guid id) {
-		Tableau? tableau = tableauService.GetTableau(id);
+	public async Task<IActionResult> GetTableau(Guid id) {
+		apiResponse.Data = await tableauService.GetTableau(apiResponse, id);
 
-		return tableau is null
-			? this.FailResponse<Tableau>("NOT_FOUND", $"Tableau {id} not found")
-			: this.OkResponse(tableau);
+		return this.Ok(apiResponse);
 	}
 
 	[HttpPost]
-	public ActionResult<ResponseObject<Tableau>> CreateTableau([FromBody] RequestObject<Tableau> request) {
-		if (request.Data == null) {
-			return this.FailResponse<Tableau>("BAD_REQUEST", $"No tableau data provided");
-		}
+	public async Task<IActionResult> CreateTableau([FromBody] Tableau tableau) {
+		apiResponse.Data = await tableauService.CreateTableau(apiResponse, tableau);
 
-		Tableau newTableau = tableauService.CreateTableau(request.Data);
-		return this.OkResponse(newTableau);
+		return this.Ok(apiResponse);
 	}
 
 	[HttpPut("{id:guid}")]
-	public ActionResult<ResponseObject<string>> UpdateTableau(Guid id, [FromBody] RequestObject<Tableau> request) {
-		if (request.Data == null) {
-			return this.FailResponse<string>("BAD_REQUEST", $"No tableau data provided");
-		}
+	public async Task<IActionResult> UpdateTableau(Guid id, [FromBody] Tableau tableau) {
+		apiResponse.Data = await tableauService.UpdateTableau(apiResponse, id, tableau);
 
-		bool success = tableauService.UpdateTableau(id, request.Data);
-		return !success ?
-			this.FailResponse<string>("NOT_FOUND", $"Tableau {id} not found") :
-			this.OkResponse("Tableau updated");
+		return this.Ok(apiResponse);
 	}
 
 	[HttpDelete("{id:guid}")]
-	public ActionResult<ResponseObject<string>> DeleteTableau(Guid id) {
-		bool success = tableauService.DeleteTableau(id);
-		return !success ?
-			this.FailResponse<string>("NOT_FOUND", $"Tableau {id} not found") :
-			this.OkResponse("Tableau deleted");
+	public async Task<IActionResult> DeleteTableau(Guid id) {
+		apiResponse.Data = await tableauService.DeleteTableau(apiResponse, id);
+
+		return this.Ok(apiResponse);
 	}
 }

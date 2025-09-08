@@ -3,9 +3,9 @@ using RadioScheduler.Models;
 namespace RadioScheduler.Interfaces;
 
 public interface ITimeslotRepository {
-	IEnumerable<Timeslot> GetTimeslots();
-	Timeslot? GetTimeslots(Guid id);
-	Timeslot CreateTimeslot(Timeslot timeslot);
-	void UpdateTimeslot(Timeslot existingTimeslot, Timeslot newTimeslot);
-	void DeleteTimeslot(Timeslot timeslotToDelete);
+	Task<IEnumerable<Timeslot>> GetTimeslots();
+	Task<Timeslot?> GetTimeslot(Guid id);
+	Task CreateTimeslot(Timeslot timeslot);
+	Task UpdateTimeslot(Timeslot newTimeslot);
+	Task DeleteTimeslot(Guid id);
 }

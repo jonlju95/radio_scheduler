@@ -1,35 +1,51 @@
+using Dapper;
+using Microsoft.Data.Sqlite;
 using RadioScheduler.Interfaces;
 using RadioScheduler.Models;
-using RadioScheduler.Utils.JsonReaders;
 
 namespace RadioScheduler.Repositories;
 
 public class StudioRepository : IStudioRepository {
-	private readonly List<Studio> studios = StudioJsonReader.GetInMemoryStudios();
+	private const string connectionString = "Data Source=localDB.db";
+	private static SqliteConnection dbConnection => new SqliteConnection(connectionString);
 
-	public IEnumerable<Studio> GetStudios() {
-		return studios;
+	public async Task<IEnumerable<Studio>> GetStudios() {
+		const string sql = "SELECT id, name, capacity, booking_price FROM global_studio";
+
+		return await dbConnection.QueryAsync<Studio>(sql);
 	}
 
-	public Studio? GetStudio(Guid id) {
-		return studios.FirstOrDefault(s => s.Id == id);
+	public async Task<Studio?> GetStudio(Guid id) {
+		const string sql = "SELECT id, name, capacity, booking_price FROM global_studio WHERE id = @id";
+
+		return await dbConnection.QueryFirstAsync<Studio>(sql, new { id = id.ToString("D").ToLower() });
 	}
 
-	public Studio CreateStudio(Studio studio) {
-		if (studios.Contains(studio)) {
-			return studio;
-		}
+	public async Task CreateStudio(Studio studio) {
+		const string sql =
+			"INSERT INTO global_studio (id, name, capacity, booking_price) VALUES (@id, @name, @capacity, @bookingPrice)";
 
-		studios.Add(studio);
-		return studio;
+		await dbConnection.ExecuteAsync(sql,
+			new {
+				id = studio.Id, name = studio.Name, capacity = studio.Capacity,
+				bookingPrice = studio.BookingPrice
+			});
 	}
 
-	public void UpdateStudio(Studio existingStudio, Studio updatedStudio) {
-		int index = studios.IndexOf(existingStudio);
-		studios[index] = updatedStudio;
+	public async Task UpdateStudio(Studio updatedStudio) {
+		const string sql =
+			"UPDATE global_studio SET name = @name, capacity = @capacity, bookingPrice = @bookingPrice WHERE id = @id";
+
+		await dbConnection.ExecuteAsync(sql,
+			new {
+				name = updatedStudio.Name, capacity = updatedStudio.Capacity, bookingPrice = updatedStudio.BookingPrice,
+				id = updatedStudio.Id.ToString("D").ToLower()
+			});
 	}
 
-	public void DeleteStudio(Studio studioToDelete) {
-		studios.Remove(studioToDelete);
+	public async Task DeleteStudio(Guid id) {
+		const string sql = "DELETE FROM global_studio WHERE id = @id";
+
+		await dbConnection.ExecuteAsync(sql, new { id = id.ToString("D").ToLower() });
 	}
 }

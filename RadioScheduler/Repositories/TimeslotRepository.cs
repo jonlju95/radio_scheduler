@@ -1,33 +1,55 @@
+using Dapper;
+using Microsoft.Data.Sqlite;
 using RadioScheduler.Interfaces;
 using RadioScheduler.Models;
 
 namespace RadioScheduler.Repositories;
 
-public class TimeslotRepository(List<Timeslot> timeslots) : ITimeslotRepository {
+public class TimeslotRepository : ITimeslotRepository {
+	private const string connectionString = "Data Source=localDB.db";
+	private static SqliteConnection dbConnection => new SqliteConnection(connectionString);
 
-	public IEnumerable<Timeslot> GetTimeslots() {
-		return timeslots;
+
+	public async Task<IEnumerable<Timeslot>> GetTimeslots() {
+		const string sql = "SELECT id, start_time, end_time, tableau_id, show_id, studio_id FROM timeslot";
+
+		return await dbConnection.QueryAsync<Timeslot>(sql);
 	}
 
-	public Timeslot? GetTimeslots(Guid id) {
-		return timeslots.FirstOrDefault(x => x.Id == id);
+	public async Task<Timeslot?> GetTimeslot(Guid id) {
+		const string sql =
+			"SELECT id, start_time, end_time, tableau_id, show_id, studio_id FROM timeslot WHERE id = @id";
+
+		return await dbConnection.QueryFirstOrDefaultAsync<Timeslot>(sql, new { id = id.ToString("D").ToLower() });
 	}
 
-	public Timeslot CreateTimeslot(Timeslot timeslot) {
-		if (timeslots.Contains(timeslot)) {
-			return timeslot;
-		}
+	public async Task CreateTimeslot(Timeslot timeslot) {
+		const string sql =
+			"INSERT INTO timeslot (id, start_time, end_time, tableau_id, show_id, studio_id VALUES (@id, @startTime, @endTime, @tableauId, @showId, @studioId)";
 
-		timeslots.Add(timeslot);
-		return timeslot;
+		await dbConnection.ExecuteAsync(sql,
+			new {
+				id = timeslot.Id, startTime = timeslot.StartTime, endTime = timeslot.EndTime,
+				tableauId = timeslot.TableauId, showId = timeslot.ShowId,
+				studioId = timeslot.StudioId
+			});
 	}
 
-	public void UpdateTimeslot(Timeslot existingTimeslot, Timeslot newTimeslot) {
-		int index = timeslots.IndexOf(existingTimeslot);
-		timeslots[index] = newTimeslot;
+	public async Task UpdateTimeslot(Timeslot newTimeslot) {
+		const string sql =
+			"UPDATE tableau SET start_time = @startTime, end_time = @endTime, show_id = @showId, studio_id = @studioId WHERE id = @id";
+
+		await dbConnection.ExecuteAsync(sql, new {
+			startTime = newTimeslot.StartTime, endTime = newTimeslot.EndTime,
+			showId = newTimeslot.ShowId,
+			studioId = newTimeslot.StudioId,
+			id = newTimeslot.Id.ToString("D").ToLower()
+		});
 	}
 
-	public void DeleteTimeslot(Timeslot timeslotToDelete) {
-		timeslots.Remove(timeslotToDelete);
+	public async Task DeleteTimeslot(Guid id) {
+		const string sql = "DELETE FROM timeslot WHERE id = @id";
+
+		await dbConnection.ExecuteAsync(sql, new { id = id.ToString("D").ToLower() });
 	}
 }

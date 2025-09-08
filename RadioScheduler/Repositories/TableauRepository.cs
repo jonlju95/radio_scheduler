@@ -1,37 +1,49 @@
+using Dapper;
+using Microsoft.Data.Sqlite;
 using RadioScheduler.Interfaces;
 using RadioScheduler.Models;
 
 namespace RadioScheduler.Repositories;
 
-public class TableauRepository(List<Tableau> tableaux) : ITableauRepository {
+public class TableauRepository : ITableauRepository {
+	private const string connectionString = "Data Source=localDB.db";
+	private static SqliteConnection dbConnection => new SqliteConnection(connectionString);
 
-	public IEnumerable<Tableau> GetTableaux() {
-		return tableaux;
+	public async Task<IEnumerable<Tableau>> GetTableaux() {
+		const string sql = "SELECT id, date, schedule_id FROM Tableau";
+
+		return await dbConnection.QueryAsync<Tableau>(sql);
 	}
 
-	public Tableau? GetTableau(Guid id) {
-		return tableaux.FirstOrDefault(t => t.Id == id);
+	public async Task<Tableau?> GetTableau(Guid id) {
+		const string sql = "SELECT id, date, schedule_id FROM Tableau WHERE id = @id";
+
+		return await dbConnection.QueryFirstOrDefaultAsync<Tableau>(sql, new { id = id.ToString("D").ToLower() });
 	}
 
-	public Tableau CreateTableau(Tableau tableau) {
-		if (tableaux.Contains(tableau)) {
-			return tableau;
-		}
+	public async Task CreateTableau(Tableau tableau) {
+		const string sql = "INSERT INTO tableau (id, date, schedule_id) VALUES (@id, @date, @scheduleId)";
 
-		tableaux.Add(tableau);
-		return tableau;
+		await dbConnection.ExecuteAsync(sql,
+			new { id = tableau.Id, date = tableau.Date, scheduleId = tableau.ScheduleId });
 	}
 
-	public void UpdateTableau(Tableau existingTableau, Tableau newTableau) {
-		int index = tableaux.IndexOf(existingTableau);
-		tableaux[index] = newTableau;
+	public async Task UpdateTableau(Tableau newTableau) {
+		const string sql = "UPDATE tableau SET date = @date WHERE id = @id";
+
+		await dbConnection.ExecuteAsync(sql,
+			new { date = newTableau.Date, id = newTableau.Id.ToString("D").ToLower() });
 	}
 
-	public void DeleteTableau(Tableau tableauToDelete) {
-		tableaux.Remove(tableauToDelete);
+	public async Task DeleteTableau(Guid id) {
+		const string sql = "DELETE FROM tableau WHERE id = @id";
+
+		await dbConnection.ExecuteAsync(sql, new { id = id.ToString("D").ToLower() });
 	}
 
-	public Tableau? GetDailyTableau(DateOnly date) {
-		return tableaux.FirstOrDefault(t => t.Date == date);
+	public async Task<Tableau?> GetDailyTableau(DateOnly date) {
+		const string sql = "SELECT id, date, schedule_id FROM tableau WHERE date(date, 'unixepoch') = @date";
+
+		return await dbConnection.QueryFirstOrDefaultAsync<Tableau>(sql, new { date });
 	}
 }

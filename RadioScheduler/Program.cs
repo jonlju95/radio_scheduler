@@ -1,10 +1,9 @@
 using Dapper;
 using RadioScheduler.Interfaces;
-using RadioScheduler.Models;
+using RadioScheduler.Models.Api;
 using RadioScheduler.Repositories;
 using RadioScheduler.Services;
 using RadioScheduler.Utils.DatabaseHandlers;
-using RadioScheduler.Utils.JsonReaders;
 using RadioScheduler.Utils.Middleware;
 
 namespace RadioScheduler;
@@ -26,13 +25,6 @@ internal static class Program {
 		builder.Logging.ClearProviders();
 		builder.Logging.AddConsole();
 
-		List<Schedule> schedules = ScheduleJsonReader.GetInMemorySchedules();
-		List<Tableau> tableaux = [];
-
-		schedules.ForEach(schedule => tableaux.AddRange(schedule.Tableaux));
-
-		List<Timeslot> timeslots = tableaux.SelectMany(tableau => tableau.Timeslots).ToList();
-
 		SqlMapper.AddTypeHandler(new DateOnlyHandler());
 		SqlMapper.AddTypeHandler(new TimeOnlyHandler());
 		SqlMapper.AddTypeHandler(new GuidHandler());
@@ -46,8 +38,8 @@ internal static class Program {
 		builder.Services.AddSingleton<IRadioShowRepository, RadioShowRepository>();
 		builder.Services.AddSingleton<IRadioHostRepository, RadioHostRepository>();
 		builder.Services.AddSingleton<IStudioRepository, StudioRepository>();
-		builder.Services.AddSingleton<ITimeslotRepository>(new TimeslotRepository(timeslots));
-		builder.Services.AddSingleton<ITableauRepository>(new TableauRepository(tableaux));
+		builder.Services.AddSingleton<ITimeslotRepository, TimeslotRepository>();
+		builder.Services.AddSingleton<ITableauRepository, TableauRepository>();
 		builder.Services.AddSingleton<IScheduleRepository, ScheduleRepository>();
 
 		// Services
@@ -57,6 +49,8 @@ internal static class Program {
 		builder.Services.AddScoped<TimeslotService>();
 		builder.Services.AddScoped<TableauService>();
 		builder.Services.AddScoped<ScheduleService>();
+
+		builder.Services.AddScoped<ApiResponse>();
 
 		return builder.Build();
 	}

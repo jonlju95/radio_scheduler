@@ -5,52 +5,42 @@ using RadioScheduler.Services;
 
 namespace RadioScheduler.Controllers;
 
-public class RadioShowController(RadioShowService radioShowService) : BaseApiController {
+public class RadioShowController(
+	RadioShowService radioShowService,
+	ApiResponse apiResponse) : BaseApiController {
 
 	[HttpGet]
-	public ActionResult<ResponseObject<List<RadioShow>>> GetRadioShows() {
-		IEnumerable<RadioShow> radioShows = radioShowService.GetRadioShows();
+	public async Task<IActionResult> GetRadioShows() {
+		apiResponse.Data = await radioShowService.GetRadioShows(apiResponse);
 
-		return radioShows is null
-			? this.FailResponse<List<RadioShow>>("NOT_FOUND", $"List {radioShows} not found")
-			: this.OkResponse(radioShows.ToList());
+		return this.Ok(apiResponse);
 	}
 
 	[HttpGet("{id:guid}")]
-	public ActionResult<ResponseObject<RadioShow>> GetRadioShow(Guid id) {
-		RadioShow? radioShow = radioShowService.GetRadioShow(id);
-		return radioShow is null
-			? this.FailResponse<RadioShow>("NOT_FOUND", $"Radio show {radioShow} not found")
-			: this.OkResponse(radioShow);
+	public async Task<IActionResult> GetRadioShow(Guid id) {
+		apiResponse.Data = await radioShowService.GetRadioShow(apiResponse, id);
+
+		return this.Ok(apiResponse);
 	}
 
 	[HttpPost]
-	public ActionResult<ResponseObject<RadioShow>> AddRadioShow([FromBody] RequestObject<RadioShow> request) {
-		if (request.Data is null) {
-			return this.FailResponse<RadioShow>("BAD_REQUEST", "No show provided");
-		}
+	public async Task<IActionResult> CreateRadioShow([FromBody] RadioShow radioShow) {
+		apiResponse.Data = await radioShowService.CreateRadioShow(apiResponse, radioShow);
 
-		RadioShow newRadioShow = radioShowService.AddRadioShow(request.Data);
-		return this.OkResponse(newRadioShow);
+		return this.Ok(apiResponse);
 	}
 
 	[HttpPut("{id:guid}")]
-	public ActionResult<ResponseObject<string>> UpdateRadioShow(Guid id, [FromBody] RequestObject<RadioShow> request) {
-		if (request.Data is null) {
-			return this.FailResponse<string>("BAD_REQUEST", "No show provided");
-		}
+	public async Task<IActionResult> UpdateRadioShow(Guid id, [FromBody] RadioShow radioShow) {
+		apiResponse.Data = await radioShowService.UpdateRadioShow(apiResponse, id, radioShow);
 
-		bool success = radioShowService.UpdateRadioShow(id, request.Data);
-		return !success
-			? this.FailResponse<string>("NOT_FOUND", "No show provided")
-			: this.OkResponse("Radio show updated");
+		return this.Ok(apiResponse);
 	}
 
 	[HttpDelete("{id:guid}")]
-	public ActionResult<ResponseObject<string>> DeleteRadioShow(Guid id) {
-		bool success = radioShowService.DeleteRadioShow(id);
-		return !success
-			? this.FailResponse<string>("NOT_FOUND", "No show found")
-			: this.OkResponse("Radio show deleted");
+	public async Task<IActionResult> DeleteRadioShow(Guid id) {
+		apiResponse.Data = await radioShowService.DeleteRadioShow(apiResponse, id);
+
+		return this.Ok(apiResponse);
 	}
 }
