@@ -10,13 +10,13 @@ public class ScheduleRepository : IScheduleRepository {
 	private static SqliteConnection dbConnection => new SqliteConnection(connectionString);
 
 	public async Task<IEnumerable<Schedule>> GetSchedules() {
-		const string sql = "SELECT id, start_date, end_date FROM global_schedule";
+		const string sql = "SELECT id, year, month FROM global_schedule";
 
 		return await dbConnection.QueryAsync<Schedule>(sql);
 	}
 
 	public async Task<Schedule?> GetSchedule(Guid id) {
-		const string sql = "SELECT id, start_date, end_date FROM global_schedule WHERE id = @id";
+		const string sql = "SELECT id, year, month FROM global_schedule WHERE id = @id";
 
 		return await dbConnection.QueryFirstOrDefaultAsync<Schedule>(sql, new { id = id.ToString("D").ToLower() });
 	}
@@ -31,18 +31,18 @@ public class ScheduleRepository : IScheduleRepository {
 
 	public async Task CreateSchedule(Schedule schedule) {
 		const string sql =
-			"INSERT INTO global_schedule (id, start_date, end_date) VALUES (@id, @start_date, @end_date)";
+			"INSERT INTO global_schedule (id, year, month) VALUES (@id, @year, @month)";
 
 		await dbConnection.ExecuteAsync(sql,
-			new { id = schedule.Id, start_date = schedule.StartDate, end_date = schedule.EndDate });
+			new { id = schedule.Id, year = schedule.Year, month = schedule.Month });
 	}
 
 	public async Task UpdateSchedule(Schedule newSchedule) {
-		const string sql = "UPDATE global_schedule SET start_date = @startDate, end_date = @endDate WHERE id = @id";
+		const string sql = "UPDATE global_schedule SET year = @year, month = @month WHERE id = @id";
 
 		await dbConnection.ExecuteAsync(sql,
 			new {
-				startDate = newSchedule.StartDate, endDate = newSchedule.EndDate,
+				newSchedule.Year, newSchedule.Month,
 				id = newSchedule.Id.ToString("D").ToLower()
 			});
 	}

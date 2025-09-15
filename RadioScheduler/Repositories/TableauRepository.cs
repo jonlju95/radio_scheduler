@@ -18,7 +18,7 @@ public class TableauRepository : ITableauRepository {
 	public async Task<Tableau?> GetTableau(Guid id) {
 		const string sql = "SELECT id, date, schedule_id FROM Tableau WHERE id = @id";
 
-		return await dbConnection.QueryFirstOrDefaultAsync<Tableau>(sql, new { id = id.ToString("D").ToLower() });
+		return await dbConnection.QueryFirstOrDefaultAsync<Tableau>(sql, new { id });
 	}
 
 	public async Task CreateTableau(Tableau tableau) {

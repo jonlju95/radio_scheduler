@@ -11,10 +11,16 @@ namespace RadioScheduler;
 internal static class Program {
 	private static void Main(string[] args) {
 		WebApplication app = SetupBuilderServices(args);
+		SetupDatabaseHandlers();
 
 		app.MapControllers();
 		app.UsePathBase(new PathString("/v1"));
 		app.UseRequestId();
+
+		if (app.Environment.IsDevelopment()) {
+			app.UseSwagger();
+			app.UseSwaggerUI();
+		}
 
 		app.Run();
 	}
@@ -24,12 +30,6 @@ internal static class Program {
 
 		builder.Logging.ClearProviders();
 		builder.Logging.AddConsole();
-
-		SqlMapper.AddTypeHandler(new DateOnlyHandler());
-		SqlMapper.AddTypeHandler(new TimeOnlyHandler());
-		SqlMapper.AddTypeHandler(new GuidHandler());
-
-		DefaultTypeMap.MatchNamesWithUnderscores = true;
 
 		// Controllers
 		builder.Services.AddControllers();
@@ -52,6 +52,18 @@ internal static class Program {
 
 		builder.Services.AddScoped<ApiResponse>();
 
+		builder.Services.AddEndpointsApiExplorer();
+		builder.Services.AddSwaggerGen();
+
 		return builder.Build();
+	}
+
+	private static void SetupDatabaseHandlers() {
+		SqlMapper.AddTypeHandler(new DateOnlyHandler());
+		SqlMapper.AddTypeHandler(new TimeOnlyHandler());
+		SqlMapper.AddTypeHandler(new GuidHandler());
+		SqlMapper.AddTypeHandler(new TimestampHandler());
+
+		DefaultTypeMap.MatchNamesWithUnderscores = true;
 	}
 }

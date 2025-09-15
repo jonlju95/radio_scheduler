@@ -5,42 +5,52 @@ using RadioScheduler.Services;
 
 namespace RadioScheduler.Controllers;
 
-public class StudioController(
-	StudioService studioService,
-	ApiResponse apiResponse) : BaseApiController {
+public class StudioController(StudioService studioService, ApiResponse apiResponse) : BaseApiController(apiResponse) {
 
 	[HttpGet]
-	public async Task<IActionResult> GetStudios() {
-		apiResponse.Data = await studioService.GetStudios(apiResponse);
+	public async Task<ActionResult<ApiResponse>> GetStudios() {
+		IEnumerable<Studio> studios = await studioService.GetStudios();
 
-		return this.Ok(apiResponse);
+		return studios == null || !studios.Any()
+			? this.NotFoundResponse()
+			: this.SuccessResponse(studios);
 	}
 
 	[HttpGet("{id:guid}")]
-	public async Task<IActionResult> GetStudio(Guid id) {
-		apiResponse.Data = await studioService.GetStudio(apiResponse, id);
+	public async Task<ActionResult<ApiResponse>> GetStudio(Guid id) {
+		Studio? studio = await studioService.GetStudio(id);
 
-		return this.Ok(apiResponse);
+		return studio == null ? this.NotFoundResponse() : this.SuccessResponse(studio);
 	}
 
 	[HttpPost]
-	public async Task<IActionResult> CreateStudio([FromBody] Studio studio) {
-		apiResponse.Data = await studioService.CreateStudio(apiResponse, studio);
+	public async Task<ActionResult<ApiResponse>> CreateStudio([FromBody] Studio studio) {
+		if (studio == null) {
+			return this.BadRequestResponse();
+		}
 
-		return this.Ok(apiResponse);
+		Studio? newStudio = await studioService.CreateStudio(studio);
+
+		return newStudio == null
+			? this.ConflictResponse("Studio")
+			: this.CreatedResponse(nameof(studio), studio, newStudio);
 	}
 
 	[HttpPut("{id:guid}")]
-	public async Task<IActionResult> UpdateStudio(Guid id, [FromBody] Studio studio) {
-		apiResponse.Data = await studioService.UpdateStudio(apiResponse, id, studio);
+	public async Task<ActionResult<ApiResponse>> UpdateStudio(Guid id, [FromBody] Studio studio) {
+		if (studio == null) {
+			return this.BadRequestResponse();
+		}
 
-		return this.Ok(apiResponse);
+		return await studioService.UpdateStudio(id, studio)
+			? this.SuccessResponse(studio)
+			: this.NotFoundResponse();
 	}
 
 	[HttpDelete("{id:guid}")]
-	public async Task<IActionResult> DeleteStudio(Guid id) {
-		apiResponse.Data = await studioService.DeleteStudio(apiResponse, id);
-
-		return this.Ok(apiResponse);
+	public async Task<ActionResult<ApiResponse>> DeleteStudio(Guid id) {
+		return await studioService.DeleteStudio(id)
+			? this.NoContentResponse()
+			: this.NotFoundResponse();
 	}
 }

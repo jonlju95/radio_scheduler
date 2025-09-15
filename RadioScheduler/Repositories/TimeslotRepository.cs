@@ -20,7 +20,7 @@ public class TimeslotRepository : ITimeslotRepository {
 		const string sql =
 			"SELECT id, start_time, end_time, tableau_id, show_id, studio_id FROM timeslot WHERE id = @id";
 
-		return await dbConnection.QueryFirstOrDefaultAsync<Timeslot>(sql, new { id = id.ToString("D").ToLower() });
+		return await dbConnection.QueryFirstOrDefaultAsync<Timeslot>(sql, new { id });
 	}
 
 	public async Task CreateTimeslot(Timeslot timeslot) {

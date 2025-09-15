@@ -5,40 +5,52 @@ using RadioScheduler.Services;
 
 namespace RadioScheduler.Controllers;
 
-public class TableauController(TableauService tableauService, ApiResponse apiResponse) : BaseApiController {
+public class TableauController(TableauService tableauService, ApiResponse apiResponse)
+	: BaseApiController(apiResponse) {
 
 	[HttpGet]
-	public async Task<IActionResult> GetTableaux() {
-		apiResponse.Data = await tableauService.GetTableaux(apiResponse);
+	public async Task<ActionResult<ApiResponse>> GetTableaux() {
+		IEnumerable<Tableau> tableaux = await tableauService.GetTableaux();
 
-		return this.Ok(apiResponse);
+		return tableaux == null || !tableaux.Any() ? this.NotFoundResponse() : this.SuccessResponse(tableaux);
+		;
 	}
 
 	[HttpGet("{id:guid}")]
-	public async Task<IActionResult> GetTableau(Guid id) {
-		apiResponse.Data = await tableauService.GetTableau(apiResponse, id);
+	public async Task<ActionResult<ApiResponse>> GetTableau(Guid id) {
+		Tableau? tableau = await tableauService.GetTableau(id);
 
-		return this.Ok(apiResponse);
+		return tableau == null ? this.NotFoundResponse() : this.SuccessResponse(tableau);
 	}
 
 	[HttpPost]
-	public async Task<IActionResult> CreateTableau([FromBody] Tableau tableau) {
-		apiResponse.Data = await tableauService.CreateTableau(apiResponse, tableau);
+	public async Task<ActionResult<ApiResponse>> CreateTableau([FromBody] Tableau tableau) {
+		if (tableau == null) {
+			return this.BadRequestResponse();
+		}
 
-		return this.Ok(apiResponse);
+		Tableau? newTableau = await tableauService.CreateTableau(tableau);
+
+		return newTableau == null
+			? this.ConflictResponse("Tableau")
+			: this.CreatedResponse(nameof(tableau), tableau, newTableau);
 	}
 
 	[HttpPut("{id:guid}")]
-	public async Task<IActionResult> UpdateTableau(Guid id, [FromBody] Tableau tableau) {
-		apiResponse.Data = await tableauService.UpdateTableau(apiResponse, id, tableau);
+	public async Task<ActionResult<ApiResponse>> UpdateTableau(Guid id, [FromBody] Tableau tableau) {
+		if (tableau == null) {
+			return this.BadRequestResponse();
+		}
 
-		return this.Ok(apiResponse);
+		return await tableauService.UpdateTableau(id, tableau)
+			? this.SuccessResponse(tableau)
+			: this.NoContentResponse();
 	}
 
 	[HttpDelete("{id:guid}")]
-	public async Task<IActionResult> DeleteTableau(Guid id) {
-		apiResponse.Data = await tableauService.DeleteTableau(apiResponse, id);
-
-		return this.Ok(apiResponse);
+	public async Task<ActionResult<ApiResponse>> DeleteTableau(Guid id) {
+		return await tableauService.DeleteTableau(id)
+			? this.SuccessResponse(id)
+			: this.NoContentResponse();
 	}
 }

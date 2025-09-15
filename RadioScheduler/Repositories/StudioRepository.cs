@@ -18,7 +18,7 @@ public class StudioRepository : IStudioRepository {
 	public async Task<Studio?> GetStudio(Guid id) {
 		const string sql = "SELECT id, name, capacity, booking_price FROM global_studio WHERE id = @id";
 
-		return await dbConnection.QueryFirstAsync<Studio>(sql, new { id = id.ToString("D").ToLower() });
+		return await dbConnection.QueryFirstOrDefaultAsync<Studio>(sql, new { id });
 	}
 
 	public async Task CreateStudio(Studio studio) {

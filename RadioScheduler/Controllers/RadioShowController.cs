@@ -7,40 +7,52 @@ namespace RadioScheduler.Controllers;
 
 public class RadioShowController(
 	RadioShowService radioShowService,
-	ApiResponse apiResponse) : BaseApiController {
+	ApiResponse apiResponse) : BaseApiController(apiResponse) {
 
 	[HttpGet]
-	public async Task<IActionResult> GetRadioShows() {
-		apiResponse.Data = await radioShowService.GetRadioShows(apiResponse);
+	public async Task<ActionResult<ApiResponse>> GetRadioShows() {
+		IEnumerable<RadioShow> radioShows = await radioShowService.GetRadioShows();
 
-		return this.Ok(apiResponse);
+		return radioShows == null || !radioShows.Any()
+			? this.NotFoundResponse()
+			: this.SuccessResponse(radioShows);
 	}
 
 	[HttpGet("{id:guid}")]
-	public async Task<IActionResult> GetRadioShow(Guid id) {
-		apiResponse.Data = await radioShowService.GetRadioShow(apiResponse, id);
+	public async Task<ActionResult<ApiResponse>> GetRadioShow(Guid id) {
+		RadioShow? radioShow = await radioShowService.GetRadioShow(id);
 
-		return this.Ok(apiResponse);
+		return radioShow == null ? this.NotFoundResponse() : this.SuccessResponse(radioShow);
 	}
 
 	[HttpPost]
-	public async Task<IActionResult> CreateRadioShow([FromBody] RadioShow radioShow) {
-		apiResponse.Data = await radioShowService.CreateRadioShow(apiResponse, radioShow);
+	public async Task<ActionResult<ApiResponse>> CreateRadioShow([FromBody] RadioShow radioShow) {
+		if (radioShow == null) {
+			return this.BadRequestResponse();
+		}
 
-		return this.Ok(apiResponse);
+		RadioShow? newRadioShow = await radioShowService.CreateRadioShow(radioShow);
+
+		return newRadioShow == null
+			? this.ConflictResponse("Radio show")
+			: this.CreatedResponse(nameof(radioShow), radioShow, newRadioShow);
 	}
 
 	[HttpPut("{id:guid}")]
-	public async Task<IActionResult> UpdateRadioShow(Guid id, [FromBody] RadioShow radioShow) {
-		apiResponse.Data = await radioShowService.UpdateRadioShow(apiResponse, id, radioShow);
+	public async Task<ActionResult<ApiResponse>> UpdateRadioShow(Guid id, [FromBody] RadioShow radioShow) {
+		if (radioShow == null) {
+			return this.BadRequestResponse();
+		}
 
-		return this.Ok(apiResponse);
+		return await radioShowService.UpdateRadioShow(id, radioShow)
+			? this.SuccessResponse(radioShow)
+			: this.NoContentResponse();
 	}
 
 	[HttpDelete("{id:guid}")]
-	public async Task<IActionResult> DeleteRadioShow(Guid id) {
-		apiResponse.Data = await radioShowService.DeleteRadioShow(apiResponse, id);
-
-		return this.Ok(apiResponse);
+	public async Task<ActionResult<ApiResponse>> DeleteRadioShow(Guid id) {
+		return await radioShowService.DeleteRadioShow(id)
+			? this.SuccessResponse()
+			: this.NoContentResponse();
 	}
 }

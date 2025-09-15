@@ -6,42 +6,16 @@ namespace RadioScheduler.Services;
 
 public class RadioHostService(IRadioHostRepository radioHostRepository) {
 
-	public async Task<IEnumerable<RadioHost>> GetHosts(ApiResponse apiResponse) {
-		IEnumerable<RadioHost> hosts = await radioHostRepository.GetHosts();
-
-		if (hosts != null) {
-			return hosts;
-		}
-
-		apiResponse.Error.Add(new ErrorInfo { Code = "NOT_FOUND", Message = "List not found" });
-		apiResponse.Success = false;
-
-		return hosts;
+	public async Task<IEnumerable<RadioHost>> GetHosts() {
+		return await radioHostRepository.GetHosts();
 	}
 
-	public async Task<RadioHost?> GetHost(ApiResponse apiResponse, Guid id) {
-		RadioHost? host = await radioHostRepository.GetHost(id);
-
-		if (host != null) {
-			return host;
-		}
-
-		apiResponse.Error.Add(new ErrorInfo { Code = "NOT_FOUND", Message = "Host not found" });
-		apiResponse.Success = false;
-
-		return host;
+	public async Task<RadioHost?> GetHost(Guid id) {
+		return await radioHostRepository.GetHost(id);
 	}
 
-	public async Task<RadioHost?> CreateHost(ApiResponse apiResponse, RadioHost host) {
-		if (host == null) {
-			apiResponse.Error.Add(new ErrorInfo { Code = "BAD_REQUEST", Message = "Host data not provided" });
-			apiResponse.Success = false;
-			return null;
-		}
-
-		if (await this.GetHost(apiResponse, host.Id) != null) {
-			apiResponse.Error.Add(new ErrorInfo { Code = "CANCELLED", Message = "Host already exists" });
-			apiResponse.Success = false;
+	public async Task<RadioHost?> CreateHost(RadioHost host) {
+		if (await this.GetHost(host.Id) != null) {
 			return null;
 		}
 
@@ -51,31 +25,19 @@ public class RadioHostService(IRadioHostRepository radioHostRepository) {
 		return newRadioHost;
 	}
 
-	public async Task<bool> UpdateHost(ApiResponse apiResponse, Guid id, RadioHost host) {
-		if (host == null) {
-			apiResponse.Error.Add(new ErrorInfo { Code = "BAD_REQUEST", Message = "Host data not provided" });
-			apiResponse.Success = false;
+	public async Task<bool> UpdateHost(Guid id, RadioHost updatedHost) {
+		if (await this.GetHost(id) == null) {
 			return false;
 		}
 
-		RadioHost? existingHost = await this.GetHost(apiResponse, id);
-		if (existingHost == null) {
-			apiResponse.Error.Add(new ErrorInfo { Code = "NOT_FOUND", Message = "Host not found" });
-			apiResponse.Success = false;
-			return false;
-		}
-
-		RadioHost newHost = new RadioHost(host);
+		RadioHost newHost = new RadioHost(updatedHost);
 
 		await radioHostRepository.UpdateHost(newHost);
 		return true;
 	}
 
-	public async Task<bool> DeleteHost(ApiResponse apiResponse, Guid id) {
-		RadioHost? hostToDelete = await this.GetHost(apiResponse, id);
-		if (hostToDelete == null) {
-			apiResponse.Error.Add(new ErrorInfo { Code = "NOT_FOUND", Message = "Host not found" });
-			apiResponse.Success = false;
+	public async Task<bool> DeleteHost(Guid id) {
+		if (await this.GetHost(id) == null) {
 			return false;
 		}
 
@@ -83,7 +45,7 @@ public class RadioHostService(IRadioHostRepository radioHostRepository) {
 		return true;
 	}
 
-	public async Task<IEnumerable<RadioHost>> GetMultipleHosts(ApiResponse apiResponse, List<RadioHost> timeslotHosts) {
+	public async Task<IEnumerable<RadioHost>> GetMultipleHosts(List<RadioHost> timeslotHosts) {
 		IEnumerable<RadioHost> multipleHosts = [];
 
 
