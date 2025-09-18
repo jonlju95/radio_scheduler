@@ -42,8 +42,14 @@ public class TableauRepository : ITableauRepository {
 	}
 
 	public async Task<Tableau?> GetDailyTableau(DateOnly date) {
-		const string sql = "SELECT id, date, schedule_id FROM tableau WHERE date(date, 'unixepoch') = @date";
+		const string sql = "SELECT id, date, schedule_id FROM tableau WHERE date = @date";
 
 		return await dbConnection.QueryFirstOrDefaultAsync<Tableau>(sql, new { date });
+	}
+
+	public async Task<IEnumerable<Tableau>> GetWeeklyTableaux(DateOnly startDate, DateOnly endDate) {
+		const string sql = "SELECT id, date, schedule_id FROM tableau WHERE date BETWEEN @startDate AND @endDate";
+
+		return await dbConnection.QueryAsync<Tableau>(sql, new { startDate, endDate });
 	}
 }

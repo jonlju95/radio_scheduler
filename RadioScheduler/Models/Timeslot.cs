@@ -1,27 +1,25 @@
-using RadioScheduler.Models.Base;
-
 namespace RadioScheduler.Models;
 
 public class Timeslot {
 	public Guid Id { get; init; }
-	public Timestamp StartTime { get; set; } = new Timestamp();
-	public Timestamp EndTime { get; set; } = new Timestamp();
+	public DateTime StartTime { get; set; }
+	public DateTime EndTime { get; set; }
 	public Guid TableauId { get; init; }
-	public List<Guid> HostIds { get; set; } = [];
-	public Guid? ShowId { get; set; }
-	public Guid? StudioId { get; set; }
+	public List<RadioHost> RadioHosts { get; set; } = [];
+	public RadioShow? RadioShow { get; set; }
+	public Studio? Studio { get; set; }
 
 	public Timeslot() {
 	}
 
-	public Timeslot(Guid id, Timestamp startTime, Timestamp endTime, Guid tableauId, List<Guid> hostIds, Guid? showId,
-		Guid? studioId) {
+	public Timeslot(Guid id, DateTime startTime, DateTime endTime, Guid tableauId, List<RadioHost> hosts, RadioShow? show,
+		Studio? studio) {
 		this.Id = id;
 		this.StartTime = startTime;
 		this.EndTime = endTime;
 		this.TableauId = tableauId;
-		this.HostIds = hostIds;
-		this.ShowId = showId;
-		this.StudioId = studioId;
+		this.RadioHosts = hosts;
+		this.RadioShow = show;
+		this.Studio = studio;
 	}
 }

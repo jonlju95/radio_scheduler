@@ -33,7 +33,7 @@ public class StudioController(StudioService studioService, ApiResponse apiRespon
 
 		return newStudio == null
 			? this.ConflictResponse("Studio")
-			: this.CreatedResponse(nameof(studio), studio, newStudio);
+			: this.CreatedResponse(nameof(this.GetStudio),new { id = newStudio.Id }, newStudio);
 	}
 
 	[HttpPut("{id:guid}")]

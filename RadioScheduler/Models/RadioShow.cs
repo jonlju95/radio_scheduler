@@ -1,22 +1,24 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace RadioScheduler.Models;
 
 public class RadioShow {
-	public Guid Id { get; set; }
-	public string Name { get; set; } = "";
-	public int DurationMinutes { get; set; }
+	public Guid Id { get; set; } = Guid.NewGuid();
+	public string Title { get; set; } = "";
+	public int DurationMin { get; set; }
 
 	public RadioShow() {
 	}
 
-	public RadioShow(Guid id, string name, int durationMinutes) {
+	public RadioShow(Guid id, string title, int durationMin) {
 		this.Id = id;
-		this.Name = name;
-		this.DurationMinutes = durationMinutes;
+		this.Title = title;
+		this.DurationMin = durationMin;
 	}
 
 	public RadioShow(RadioShow other) {
 		this.Id = other.Id;
-		this.Name = other.Name;
-		this.DurationMinutes = other.DurationMinutes;
+		this.Title = other.Title;
+		this.DurationMin = other.DurationMin;
 	}
 }

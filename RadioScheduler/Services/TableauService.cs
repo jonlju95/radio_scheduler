@@ -1,12 +1,9 @@
 using RadioScheduler.Interfaces;
 using RadioScheduler.Models;
-using RadioScheduler.Models.Api;
-using RadioScheduler.Models.Base;
-using RadioScheduler.Utils;
 
 namespace RadioScheduler.Services;
 
-public class TableauService(ITableauRepository tableauRepository) {
+public class TableauService(ITableauRepository tableauRepository, ITimeslotRepository timeslotRepository) {
 
 	public async Task<IEnumerable<Tableau>> GetTableaux() {
 		return await tableauRepository.GetTableaux();
@@ -50,7 +47,8 @@ public class TableauService(ITableauRepository tableauRepository) {
 	public async Task<List<Guid?>> CreateTableauForSchedule(Guid scheduleId, int year, int month) {
 		List<Guid?> tableauList = [];
 		for (int day = 1; day <= DateTime.DaysInMonth(year, month); day++) {
-			Tableau newTableau = new Tableau(Guid.NewGuid(), Timestamp.FromDateTimeUTC(new DateTime(year, month, day)), scheduleId);
+			Tableau newTableau = new Tableau(Guid.NewGuid(), new DateOnly(year, month, day),
+				scheduleId);
 			await tableauRepository.CreateTableau(newTableau);
 			tableauList.Add(newTableau.Id);
 		}
@@ -59,11 +57,14 @@ public class TableauService(ITableauRepository tableauRepository) {
 	}
 
 	public async Task<Tableau?> GetDailyTableau(DateOnly date) {
-		Tableau? tableau = await tableauRepository.GetDailyTableau(date);
+		Tableau? tableau =
+			await tableauRepository.GetDailyTableau(date != DateOnly.MinValue
+				? date
+				: DateOnly.FromDateTime(DateTime.Now));
 
-		if (tableau?.TimeslotIds == null) {
-			return tableau;
-		}
+		// if (tableau?.TimeslotIds == null) {
+		// 	return tableau;
+		// }
 
 		// foreach (Guid tableauTimeslot in tableau.TimeslotIds) {
 		// 	if (tableauTimeslot.HostIds is { Count: > 0 }) {
@@ -80,5 +81,23 @@ public class TableauService(ITableauRepository tableauRepository) {
 		// }
 
 		return tableau;
+	}
+
+	public async Task<Tableau?> GetTableauWithTimeslots(Guid id) {
+		Tableau? tableau = await this.GetTableau(id);
+		if (tableau == null) {
+			return null;
+		}
+
+		tableau.Timeslots = timeslotRepository.GetTimeslotByTableauId(id).Result.ToList();
+		return tableau;
+	}
+
+	public async Task<IEnumerable<Tableau>> GetWeeklyTableau(DateOnly date) {
+		DateOnly queryDate = date != DateOnly.MinValue
+			? date
+			: DateOnly.FromDateTime(DateTime.Now);
+
+		return await tableauRepository.GetWeeklyTableaux(queryDate, queryDate.AddDays(7));
 	}
 }

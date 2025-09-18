@@ -8,4 +8,5 @@ public interface ITimeslotRepository {
 	Task CreateTimeslot(Timeslot timeslot);
 	Task UpdateTimeslot(Timeslot newTimeslot);
 	Task DeleteTimeslot(Guid id);
+	Task<IEnumerable<Timeslot>> GetTimeslotByTableauId(Guid id);
 }

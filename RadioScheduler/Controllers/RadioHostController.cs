@@ -37,7 +37,7 @@ public class RadioHostController(
 
 		return newRadioHost == null
 			? this.ConflictResponse("Radio host")
-			: this.CreatedResponse(nameof(radioHost), radioHost, newRadioHost);
+			: this.CreatedResponse(nameof(this.GetRadioHost), new { id = newRadioHost.Id }, newRadioHost);
 	}
 
 	[HttpPut("{id:guid}")]

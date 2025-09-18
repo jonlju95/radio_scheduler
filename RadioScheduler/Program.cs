@@ -13,11 +13,14 @@ internal static class Program {
 		WebApplication app = SetupBuilderServices(args);
 		SetupDatabaseHandlers();
 
+		app.UseCors("AllowAll");
+
 		app.MapControllers();
 		app.UsePathBase(new PathString("/v1"));
 		app.UseRequestId();
 
 		if (app.Environment.IsDevelopment()) {
+			app.MapOpenApi();
 			app.UseSwagger();
 			app.UseSwaggerUI();
 		}
@@ -55,14 +58,21 @@ internal static class Program {
 		builder.Services.AddEndpointsApiExplorer();
 		builder.Services.AddSwaggerGen();
 
+		builder.Services.AddCors(options => {
+			options.AddPolicy("AllowAll",
+				policy => policy
+					.AllowAnyOrigin()
+					.AllowAnyMethod()
+					.AllowAnyHeader());
+		});
+
 		return builder.Build();
 	}
 
 	private static void SetupDatabaseHandlers() {
-		SqlMapper.AddTypeHandler(new DateOnlyHandler());
-		SqlMapper.AddTypeHandler(new TimeOnlyHandler());
 		SqlMapper.AddTypeHandler(new GuidHandler());
-		SqlMapper.AddTypeHandler(new TimestampHandler());
+		SqlMapper.AddTypeHandler(new UnixMsDateTimeHandler());
+		SqlMapper.AddTypeHandler(new UnixMsDateOnlyHandler());
 
 		DefaultTypeMap.MatchNamesWithUnderscores = true;
 	}

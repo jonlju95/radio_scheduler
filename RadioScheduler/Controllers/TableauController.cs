@@ -13,7 +13,6 @@ public class TableauController(TableauService tableauService, ApiResponse apiRes
 		IEnumerable<Tableau> tableaux = await tableauService.GetTableaux();
 
 		return tableaux == null || !tableaux.Any() ? this.NotFoundResponse() : this.SuccessResponse(tableaux);
-		;
 	}
 
 	[HttpGet("{id:guid}")]
@@ -52,5 +51,26 @@ public class TableauController(TableauService tableauService, ApiResponse apiRes
 		return await tableauService.DeleteTableau(id)
 			? this.SuccessResponse(id)
 			: this.NoContentResponse();
+	}
+
+	[HttpGet("{id:guid}/timeslots")]
+	public async Task<ActionResult<ApiResponse>> GetTableauWithTimeslots(Guid id) {
+		Tableau? tableau = await tableauService.GetTableauWithTimeslots(id);
+
+		return tableau == null ? this.NotFoundResponse() : this.SuccessResponse(tableau);
+	}
+
+	[HttpGet("daily")]
+	public async Task<ActionResult<ApiResponse>> GetDailyTableau([FromQuery] DateOnly date) {
+		Tableau? tableau = await tableauService.GetDailyTableau(date);
+
+		return tableau == null ? this.NotFoundResponse() : this.SuccessResponse(tableau);
+	}
+
+	[HttpGet("weekly")]
+	public async Task<ActionResult<ApiResponse>> GetWeeklyTableau([FromQuery] DateOnly date) {
+		IEnumerable<Tableau> tableaux = await tableauService.GetWeeklyTableau(date);
+
+		return tableaux == null || !tableaux.Any() ? this.NotFoundResponse() : this.SuccessResponse(tableaux);
 	}
 }

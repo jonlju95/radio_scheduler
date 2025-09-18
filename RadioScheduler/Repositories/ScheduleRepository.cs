@@ -23,10 +23,10 @@ public class ScheduleRepository : IScheduleRepository {
 
 	public async Task<Schedule?> GetDailySchedule(DateOnly date) {
 		const string sql =
-			"SELECT id, start_date, end_date, week_no FROM global_schedule " +
-			"WHERE @date BETWEEN date(start_date, 'unixepoch') AND date(end_date, 'unixepoch')";
+			"SELECT id, year, month FROM global_schedule " +
+			"WHERE month = @month AND year = @year";
 
-		return await dbConnection.QueryFirstOrDefaultAsync<Schedule>(sql, new { date });
+		return await dbConnection.QueryFirstOrDefaultAsync<Schedule>(sql, new { month = date.Month, year = date.Year });
 	}
 
 	public async Task CreateSchedule(Schedule schedule) {

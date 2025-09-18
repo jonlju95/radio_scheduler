@@ -28,7 +28,7 @@ public class StudioService(IStudioRepository studioRepository) {
 			return false;
 		}
 
-		Studio newStudio = new Studio(updatedStudio);
+		Studio newStudio = new Studio(id, updatedStudio.Name, updatedStudio.BookingPrice, updatedStudio.Capacity);
 
 		await studioRepository.UpdateStudio(newStudio);
 		return true;

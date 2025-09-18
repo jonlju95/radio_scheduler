@@ -17,18 +17,21 @@ public class ScheduleService(
 	}
 
 	public async Task<Schedule?> GetDailySchedule(DateOnly date) {
-		Schedule? dailySchedule = await scheduleRepository.GetDailySchedule(date);
+		DateOnly queryDate = date != DateOnly.MinValue
+			? date
+			: DateOnly.FromDateTime(DateTime.Now);
+
+		Schedule? dailySchedule =
+			await scheduleRepository.GetDailySchedule(queryDate);
 
 		if (dailySchedule == null) {
-			// apiResponse.Error.Add(new ErrorInfo { Code = "NOT_FOUND", Message = "Schedule not found" });
-			// apiResponse.Success = false;
 			return null;
 		}
 
-		Tableau? dailyTableau = await tableauService.GetDailyTableau(date);
+		Tableau? dailyTableau = await tableauService.GetDailyTableau(queryDate);
 
 		if (dailyTableau != null) {
-			// dailySchedule.TableauIds = [dailyTableau];
+			dailySchedule.TableauIds = [dailyTableau.Id];
 		}
 
 		return dailySchedule;

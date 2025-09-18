@@ -20,7 +20,7 @@ public class RadioHostRepository : IRadioHostRepository {
 	public async Task<RadioHost?> GetHost(Guid id) {
 		const string sql = "SELECT id, first_name, last_name, is_guest FROM global_radio_host where id = @id";
 
-		return await dbConnection.QuerySingleOrDefaultAsync<RadioHost>(sql, new { id = id.ToString("D").ToLower() });
+		return await dbConnection.QuerySingleOrDefaultAsync<RadioHost>(sql, new { id = id.ToString("D").ToUpper() });
 	}
 
 	public async Task CreateHost(RadioHost host) {
@@ -40,13 +40,13 @@ public class RadioHostRepository : IRadioHostRepository {
 		await dbConnection.ExecuteAsync(sql,
 			new {
 				firstName = newHost.FirstName, lastName = newHost.LastName, isGuest = newHost.IsGuest,
-				id = newHost.Id.ToString("D").ToLower()
+				id = newHost.Id.ToString("D").ToUpper()
 			});
 	}
 
 	public async Task DeleteHost(Guid id) {
 		const string sql = "DELETE FROM global_radio_host WHERE id = @id";
 
-		await dbConnection.ExecuteAsync(sql, new { id = id.ToString("D").ToLower() });
+		await dbConnection.ExecuteAsync(sql, new { id = id.ToString("D").ToUpper() });
 	}
 }

@@ -26,7 +26,7 @@ public class RadioShowService(IRadioShowRepository radioShowRepository) {
 	}
 
 	public async Task<bool> UpdateRadioShow(Guid id, RadioShow updatedRadioShow) {
-		if (await this.GetRadioShow(id) != null) {
+		if (await this.GetRadioShow(id) == null) {
 			return false;
 		}
 

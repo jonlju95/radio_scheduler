@@ -9,4 +9,5 @@ public interface ITableauRepository {
 	Task CreateTableau(Tableau tableau);
 	Task UpdateTableau(Tableau newTableau);
 	Task DeleteTableau(Guid id);
+	Task<IEnumerable<Tableau>> GetWeeklyTableaux(DateOnly startDate, DateOnly endDate);
 }

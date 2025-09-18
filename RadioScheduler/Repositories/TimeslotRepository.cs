@@ -30,8 +30,8 @@ public class TimeslotRepository : ITimeslotRepository {
 		await dbConnection.ExecuteAsync(sql,
 			new {
 				id = timeslot.Id, startTime = timeslot.StartTime, endTime = timeslot.EndTime,
-				tableauId = timeslot.TableauId, showId = timeslot.ShowId,
-				studioId = timeslot.StudioId
+				tableauId = timeslot.TableauId, showId = timeslot.RadioShow?.Id,
+				studioId = timeslot.Studio?.Id
 			});
 	}
 
@@ -41,8 +41,8 @@ public class TimeslotRepository : ITimeslotRepository {
 
 		await dbConnection.ExecuteAsync(sql, new {
 			startTime = newTimeslot.StartTime, endTime = newTimeslot.EndTime,
-			showId = newTimeslot.ShowId,
-			studioId = newTimeslot.StudioId,
+			showId = newTimeslot.RadioShow?.Id,
+			studioId = newTimeslot.Studio?.Id,
 			id = newTimeslot.Id.ToString("D").ToLower()
 		});
 	}
@@ -51,5 +51,11 @@ public class TimeslotRepository : ITimeslotRepository {
 		const string sql = "DELETE FROM timeslot WHERE id = @id";
 
 		await dbConnection.ExecuteAsync(sql, new { id = id.ToString("D").ToLower() });
+	}
+
+	public Task<IEnumerable<Timeslot>> GetTimeslotByTableauId(Guid id) {
+		const string sql = "SELECT id, start_time, end_time, tableau_id, show_id, studio_id FROM timeslot WHERE id = @tableauId";
+
+		return dbConnection.QueryAsync<Timeslot>(sql, new { tableauId = id });
 	}
 }

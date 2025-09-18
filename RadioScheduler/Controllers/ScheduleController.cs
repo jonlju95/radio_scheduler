@@ -23,12 +23,8 @@ public class ScheduleController(ScheduleService scheduleService, ApiResponse api
 	}
 
 	[HttpGet("daily")]
-	public async Task<ActionResult<ApiResponse>> GetDailySchedule([FromQuery] string? date) {
-		if (!DateOnly.TryParse(date, out DateOnly parsedDate)) {
-			return this.BadRequestResponse();
-		}
-
-		Schedule? schedule = await scheduleService.GetDailySchedule(parsedDate);
+	public async Task<ActionResult<ApiResponse>> GetDailySchedule([FromQuery] DateOnly date) {
+		Schedule? schedule = await scheduleService.GetDailySchedule(date);
 
 		return schedule == null ? this.NotFoundResponse() : this.SuccessResponse(schedule);
 	}
@@ -43,7 +39,7 @@ public class ScheduleController(ScheduleService scheduleService, ApiResponse api
 
 		return newSchedule == null
 			? this.ConflictResponse("Schedule")
-			: this.CreatedResponse(nameof(newSchedule), schedule, newSchedule);
+			: this.CreatedResponse(nameof(this.GetSchedule), new { id = newSchedule.Id }, newSchedule);
 	}
 
 	[HttpPut("{id:guid}")]

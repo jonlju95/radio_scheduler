@@ -35,7 +35,7 @@ public class RadioShowController(
 
 		return newRadioShow == null
 			? this.ConflictResponse("Radio show")
-			: this.CreatedResponse(nameof(radioShow), radioShow, newRadioShow);
+			: this.CreatedResponse(nameof(this.GetRadioShow), new { id = newRadioShow.Id }, newRadioShow);
 	}
 
 	[HttpPut("{id:guid}")]

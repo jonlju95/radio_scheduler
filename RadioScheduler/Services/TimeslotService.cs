@@ -13,7 +13,6 @@ public class TimeslotService(ITimeslotRepository timeslotRepository) {
 	public async Task<Timeslot?> GetTimeslot(Guid id) {
 		Timeslot? timeslot = await timeslotRepository.GetTimeslot(id);
 
-
 		return timeslot;
 	}
 
@@ -23,7 +22,7 @@ public class TimeslotService(ITimeslotRepository timeslotRepository) {
 		}
 
 		Timeslot newTimeslot = new Timeslot(timeslot.Id, timeslot.StartTime, timeslot.EndTime, timeslot.TableauId,
-			timeslot.HostIds, timeslot.ShowId, timeslot.StudioId);
+			timeslot.RadioHosts, timeslot.RadioShow, timeslot.Studio);
 
 		await timeslotRepository.CreateTimeslot(newTimeslot);
 		return newTimeslot;
@@ -35,7 +34,7 @@ public class TimeslotService(ITimeslotRepository timeslotRepository) {
 		}
 
 		Timeslot newTimeslot = new Timeslot(updatedTimeslot.Id, updatedTimeslot.StartTime, updatedTimeslot.EndTime,
-			updatedTimeslot.TableauId, updatedTimeslot.HostIds, updatedTimeslot.ShowId, updatedTimeslot.StudioId);
+			updatedTimeslot.TableauId, updatedTimeslot.RadioHosts, updatedTimeslot.RadioShow, updatedTimeslot.Studio);
 
 		await timeslotRepository.UpdateTimeslot(newTimeslot);
 		return true;

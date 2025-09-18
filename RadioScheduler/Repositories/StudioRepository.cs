@@ -34,18 +34,18 @@ public class StudioRepository : IStudioRepository {
 
 	public async Task UpdateStudio(Studio updatedStudio) {
 		const string sql =
-			"UPDATE global_studio SET name = @name, capacity = @capacity, bookingPrice = @bookingPrice WHERE id = @id";
+			"UPDATE global_studio SET name = @name, capacity = @capacity, booking_price = @bookingPrice WHERE id = @id";
 
 		await dbConnection.ExecuteAsync(sql,
 			new {
 				name = updatedStudio.Name, capacity = updatedStudio.Capacity, bookingPrice = updatedStudio.BookingPrice,
-				id = updatedStudio.Id.ToString("D").ToLower()
+				id = updatedStudio.Id
 			});
 	}
 
 	public async Task DeleteStudio(Guid id) {
 		const string sql = "DELETE FROM global_studio WHERE id = @id";
 
-		await dbConnection.ExecuteAsync(sql, new { id = id.ToString("D").ToLower() });
+		await dbConnection.ExecuteAsync(sql, new { id });
 	}
 }
