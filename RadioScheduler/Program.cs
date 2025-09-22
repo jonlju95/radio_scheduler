@@ -71,7 +71,6 @@ internal static class Program {
 
 	private static void SetupDatabaseHandlers() {
 		SqlMapper.AddTypeHandler(new GuidHandler());
-		SqlMapper.AddTypeHandler(new UnixMsDateTimeHandler());
 		SqlMapper.AddTypeHandler(new UnixMsDateOnlyHandler());
 
 		DefaultTypeMap.MatchNamesWithUnderscores = true;

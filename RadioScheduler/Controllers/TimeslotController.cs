@@ -1,4 +1,3 @@
-using System.Collections;
 using Microsoft.AspNetCore.Mvc;
 using RadioScheduler.Models;
 using RadioScheduler.Models.Api;
@@ -33,7 +32,7 @@ public class TimeslotController(TimeslotService timeslotService, ApiResponse api
 
 		return newTimeslot == null
 			? this.ConflictResponse("Timeslot")
-			: this.CreatedResponse(nameof(timeslot), timeslot, newTimeslot);
+			: this.CreatedResponse(nameof(this.GetTimeslot), new { id = newTimeslot.Id }, newTimeslot);
 	}
 
 	[HttpPut("{id:guid}")]
@@ -41,7 +40,6 @@ public class TimeslotController(TimeslotService timeslotService, ApiResponse api
 		if (timeslot == null) {
 			return this.BadRequestResponse();
 		}
-
 
 		return await timeslotService.UpdateTimeslot(id, timeslot)
 			? this.SuccessResponse(timeslot)
@@ -51,6 +49,20 @@ public class TimeslotController(TimeslotService timeslotService, ApiResponse api
 	[HttpDelete("{id:guid}")]
 	public async Task<ActionResult<ApiResponse>> DeleteTimeslot(Guid id) {
 		return await timeslotService.DeleteTimeslot(id)
+			? this.SuccessResponse()
+			: this.NoContentResponse();
+	}
+
+	[HttpPut("{id:guid}/hosts/{hostId:guid}")]
+	public async Task<ActionResult<ApiResponse>> AddHostToTimeslot(Guid id, Guid hostId) {
+		return await timeslotService.AddHostToTimeslot(id, hostId)
+			? this.SuccessResponse()
+			: this.ConflictResponse("Host ");
+	}
+
+	[HttpDelete("{id:guid}/hosts/{hostId:guid}")]
+	public async Task<ActionResult<ApiResponse>> RemoveHostFromTimeslot(Guid id, Guid hostId) {
+		return await timeslotService.RemoveHostFromTimeslot(id, hostId)
 			? this.SuccessResponse()
 			: this.NoContentResponse();
 	}

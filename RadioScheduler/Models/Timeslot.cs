@@ -1,7 +1,7 @@
 namespace RadioScheduler.Models;
 
 public class Timeslot {
-	public Guid Id { get; init; }
+	public Guid Id { get; init; } = Guid.NewGuid();
 	public DateTime StartTime { get; set; }
 	public DateTime EndTime { get; set; }
 	public Guid TableauId { get; init; }
@@ -12,8 +12,8 @@ public class Timeslot {
 	public Timeslot() {
 	}
 
-	public Timeslot(Guid id, DateTime startTime, DateTime endTime, Guid tableauId, List<RadioHost> hosts, RadioShow? show,
-		Studio? studio) {
+	public Timeslot(Guid id, DateTime startTime, DateTime endTime, Guid tableauId, List<RadioHost> hosts,
+		RadioShow? show, Studio? studio) {
 		this.Id = id;
 		this.StartTime = startTime;
 		this.EndTime = endTime;
