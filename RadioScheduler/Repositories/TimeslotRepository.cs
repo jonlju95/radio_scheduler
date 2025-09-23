@@ -81,9 +81,9 @@ public class TimeslotRepository : ITimeslotRepository {
 
 	public Task<IEnumerable<Timeslot>> GetTimeslotByTableauId(Guid id) {
 		const string sql =
-			"SELECT id, start_time, end_time, tableau_id, show_id, studio_id FROM timeslot WHERE id = @tableauId";
+			"SELECT id, start_time, end_time, tableau_id, show_id, studio_id FROM timeslot WHERE tableau_id = @tableauId";
 
-		return dbConnection.QueryAsync<Timeslot>(sql, new { tableauId = id });
+		return dbConnection.QueryAsync<Timeslot>(sql, new { tableauId = id.ToString("D").ToUpper() });
 	}
 
 	public async Task CreateHostTimeslotConnection(Guid timeslotId, Guid hostId) {
