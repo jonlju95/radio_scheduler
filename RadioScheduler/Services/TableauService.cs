@@ -62,23 +62,9 @@ public class TableauService(ITableauRepository tableauRepository, ITimeslotRepos
 				? date
 				: DateOnly.FromDateTime(DateTime.Now));
 
-		// if (tableau?.TimeslotIds == null) {
-		// 	return tableau;
-		// }
-
-		// foreach (Guid tableauTimeslot in tableau.TimeslotIds) {
-		// 	if (tableauTimeslot.HostIds is { Count: > 0 }) {
-		// 		// tableauTimeslot.HostIds = radioHostService.GetMultipleHosts(tableauTimeslot.HostIds);
-		// 	}
-		//
-		// 	if (tableauTimeslot.ShowId != null) {
-		// 		// tableauTimeslot.ShowId = radioShowService.GetRadioShow(tableauTimeslot.ShowId.Id);
-		// 	}
-		//
-		// 	if (tableauTimeslot.StudioId != null) {
-		// 		// tableauTimeslot.StudioId = studioService.GetStudio(tableauTimeslot.StudioId.Id);
-		// 	}
-		// }
+		if (tableau != null) {
+			tableau.Timeslots = timeslotRepository.GetTimeslotByTableauId(tableau.Id).Result.ToList();
+		}
 
 		return tableau;
 	}
@@ -98,6 +84,13 @@ public class TableauService(ITableauRepository tableauRepository, ITimeslotRepos
 			? date
 			: DateOnly.FromDateTime(DateTime.Now);
 
-		return await tableauRepository.GetWeeklyTableaux(queryDate, queryDate.AddDays(7));
+		IEnumerable<Tableau> tableaux = await tableauRepository.GetWeeklyTableaux(queryDate, queryDate.AddDays(6));
+
+		IEnumerable<Tableau> weeklyTableau = tableaux as Tableau[] ?? tableaux.ToArray();
+		foreach (Tableau tableau in weeklyTableau.ToList()) {
+			tableau.Timeslots = timeslotRepository.GetTimeslotByTableauId(tableau.Id).Result.ToList();
+		}
+
+		return weeklyTableau;
 	}
 }

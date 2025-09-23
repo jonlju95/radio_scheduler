@@ -1,6 +1,5 @@
 using RadioScheduler.Interfaces;
 using RadioScheduler.Models;
-using RadioScheduler.Models.Api;
 
 namespace RadioScheduler.Services;
 
@@ -43,13 +42,5 @@ public class RadioHostService(IRadioHostRepository radioHostRepository) {
 
 		await radioHostRepository.DeleteHost(id);
 		return true;
-	}
-
-	public async Task<IEnumerable<RadioHost>> GetMultipleHosts(List<RadioHost> timeslotHosts) {
-		IEnumerable<RadioHost> multipleHosts = [];
-
-
-		// multipleHosts.AddRange(timeslotHosts.Select(async radioHost => await this.GetHost(apiResponse, radioHost.Id)));
-		return multipleHosts;
 	}
 }
