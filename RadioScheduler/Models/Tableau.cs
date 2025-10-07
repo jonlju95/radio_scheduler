@@ -1,9 +1,12 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace RadioScheduler.Models;
 
 public class Tableau {
 	public Guid Id { get; init; } = Guid.NewGuid();
 	public DateOnly Date { get; init; }
-	public Guid ScheduleId { get; init; }
+
+	[Column("schedule_id")] public Guid ScheduleId { get; init; }
 	public List<Timeslot> Timeslots { get; set; } = [];
 
 	public Tableau() {

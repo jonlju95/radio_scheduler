@@ -1,9 +1,20 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace RadioScheduler.Models;
 
 public class RadioHost {
 	public Guid Id { get; set; } = Guid.NewGuid();
+
+	[Column("first_name")]
+	[MaxLength(255)]
 	public string FirstName { get; set; } = "";
+
+	[Column("last_name")]
+	[MaxLength(255)]
 	public string LastName { get; set; } = "";
+
+	[Column("is_guest")]
 	public bool IsGuest { get; set; }
 
 	public RadioHost() {

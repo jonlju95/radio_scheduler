@@ -1,19 +1,16 @@
+using System.Data;
 using Dapper;
-using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
 using RadioScheduler.Interfaces;
 using RadioScheduler.Models;
+using RadioScheduler.Utils;
 
 namespace RadioScheduler.Repositories;
 
-public class TimeslotRepository : ITimeslotRepository {
-	private const string connectionString = "Data Source=localDB.db";
-	private static SqliteConnection dbConnection => new SqliteConnection(connectionString);
-
+public class TimeslotRepository(AppDbContext dbContext, IDbConnection dbConnection) : ITimeslotRepository {
 
 	public async Task<IEnumerable<Timeslot>> GetTimeslots() {
-		const string sql = "SELECT id, start_time, end_time, tableau_id, show_id, studio_id FROM timeslot";
-
-		return await dbConnection.QueryAsync<Timeslot>(sql);
+		return await dbContext.Timeslot.ToListAsync();
 	}
 
 	public async Task<Timeslot?> GetTimeslot(Guid id) {
@@ -50,40 +47,26 @@ public class TimeslotRepository : ITimeslotRepository {
 	}
 
 	public async Task CreateTimeslot(Timeslot timeslot) {
-		const string sql =
-			"INSERT INTO timeslot (id, start_time, end_time, tableau_id, show_id, studio_id) VALUES (@id, @startTime, @endTime, @tableauId, @showId, @studioId)";
-
-		await dbConnection.ExecuteAsync(sql,
-			new {
-				id = timeslot.Id, startTime = timeslot.StartTime, endTime = timeslot.EndTime,
-				tableauId = timeslot.TableauId, showId = timeslot.RadioShow?.Id,
-				studioId = timeslot.Studio?.Id
-			});
+		dbContext.Timeslot.Add(timeslot);
+		await dbContext.SaveChangesAsync();
 	}
 
 	public async Task UpdateTimeslot(Timeslot newTimeslot) {
-		const string sql =
-			"UPDATE timeslot SET start_time = @startTime, end_time = @endTime, show_id = @showId, studio_id = @studioId WHERE id = @id";
-
-		await dbConnection.ExecuteAsync(sql, new {
-			startTime = newTimeslot.StartTime, endTime = newTimeslot.EndTime,
-			showId = newTimeslot.RadioShow?.Id,
-			studioId = newTimeslot.Studio?.Id,
-			id = newTimeslot.Id.ToString("D").ToUpper()
-		});
+		await dbContext.Timeslot
+			.Where(t => t.Id.Equals(newTimeslot.Id))
+			.ExecuteUpdateAsync(timeslot => timeslot
+				.SetProperty(t => t.StartTime, newTimeslot.StartTime)
+				.SetProperty(t => t.EndTime, newTimeslot.EndTime)
+				.SetProperty(t => t.RadioShow, newTimeslot.RadioShow)
+				.SetProperty(t => t.Studio, newTimeslot.Studio));
 	}
 
 	public async Task DeleteTimeslot(Guid id) {
-		const string sql = "DELETE FROM timeslot WHERE id = @id";
-
-		await dbConnection.ExecuteAsync(sql, new { id = id.ToString("D").ToUpper() });
+		await dbContext.Timeslot.Where(t => t.Id.Equals(id)).ExecuteDeleteAsync();
 	}
 
-	public Task<IEnumerable<Timeslot>> GetTimeslotByTableauId(Guid id) {
-		const string sql =
-			"SELECT id, start_time, end_time, tableau_id, show_id, studio_id FROM timeslot WHERE tableau_id = @tableauId";
-
-		return dbConnection.QueryAsync<Timeslot>(sql, new { tableauId = id.ToString("D").ToUpper() });
+	public async Task<IEnumerable<Timeslot>> GetTimeslotByTableauId(Guid id) {
+		return await dbContext.Timeslot.Where(t => t.TableauId.Equals(id)).ToListAsync();
 	}
 
 	public async Task CreateHostTimeslotConnection(Guid timeslotId, Guid hostId) {

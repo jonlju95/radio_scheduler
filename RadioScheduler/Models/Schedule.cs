@@ -1,5 +1,3 @@
-using System.Globalization;
-
 namespace RadioScheduler.Models;
 
 public class Schedule {

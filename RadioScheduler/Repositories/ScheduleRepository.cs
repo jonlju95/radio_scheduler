@@ -1,55 +1,39 @@
-using Dapper;
-using Microsoft.Data.Sqlite;
+using System.Data;
+using Microsoft.EntityFrameworkCore;
 using RadioScheduler.Interfaces;
 using RadioScheduler.Models;
+using RadioScheduler.Utils;
 
 namespace RadioScheduler.Repositories;
 
-public class ScheduleRepository : IScheduleRepository {
-	private const string connectionString = "Data Source=localDB.db";
-	private static SqliteConnection dbConnection => new SqliteConnection(connectionString);
+public class ScheduleRepository(AppDbContext dbContext, IDbConnection dbConnection) : IScheduleRepository {
 
 	public async Task<IEnumerable<Schedule>> GetSchedules() {
-		const string sql = "SELECT id, year, month FROM global_schedule";
-
-		return await dbConnection.QueryAsync<Schedule>(sql);
+		return await dbContext.Schedules.ToListAsync();
 	}
 
 	public async Task<Schedule?> GetSchedule(Guid id) {
-		const string sql = "SELECT id, year, month FROM global_schedule WHERE id = @id";
-
-		return await dbConnection.QueryFirstOrDefaultAsync<Schedule>(sql, new { id = id.ToString("D").ToLower() });
+		return await dbContext.Schedules.FindAsync(id);
 	}
 
 	public async Task<Schedule?> GetDailySchedule(DateOnly date) {
-		const string sql =
-			"SELECT id, year, month FROM global_schedule " +
-			"WHERE month = @month AND year = @year";
-
-		return await dbConnection.QueryFirstOrDefaultAsync<Schedule>(sql, new { month = date.Month, year = date.Year });
+		return await dbContext.Schedules.FirstOrDefaultAsync(s => s.Month == date.Month && s.Year == date.Year);
 	}
 
 	public async Task CreateSchedule(Schedule schedule) {
-		const string sql =
-			"INSERT INTO global_schedule (id, year, month) VALUES (@id, @year, @month)";
-
-		await dbConnection.ExecuteAsync(sql,
-			new { id = schedule.Id, year = schedule.Year, month = schedule.Month });
+		dbContext.Schedules.Add(schedule);
+		await dbContext.SaveChangesAsync();
 	}
 
 	public async Task UpdateSchedule(Schedule newSchedule) {
-		const string sql = "UPDATE global_schedule SET year = @year, month = @month WHERE id = @id";
-
-		await dbConnection.ExecuteAsync(sql,
-			new {
-				newSchedule.Year, newSchedule.Month,
-				id = newSchedule.Id.ToString("D").ToLower()
-			});
+		await dbContext.Schedules
+			.Where(s => s.Id.Equals(newSchedule.Id))
+			.ExecuteUpdateAsync(schedule => schedule
+				.SetProperty(s => s.Month, newSchedule.Month)
+				.SetProperty(s => s.Year, newSchedule.Year));
 	}
 
 	public async Task DeleteSchedule(Guid id) {
-		const string sql = "DELETE FROM global_schedule WHERE id = @id";
-
-		await dbConnection.ExecuteAsync(sql, new { id = id.ToString("D").ToLower() });
+		await dbContext.Schedules.Where(s => s.Id.Equals(id)).ExecuteDeleteAsync();
 	}
 }

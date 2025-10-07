@@ -1,12 +1,25 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace RadioScheduler.Models;
 
 public class Timeslot {
 	public Guid Id { get; init; } = Guid.NewGuid();
+
+	[Column("start_time")]
 	public DateTime StartTime { get; set; }
+
+	[Column("end_time")]
 	public DateTime EndTime { get; set; }
+
+	[Column("tableau_id")]
 	public Guid TableauId { get; init; }
+
 	public List<RadioHost> RadioHosts { get; set; } = [];
+
+	[ForeignKey("show_id")]
 	public RadioShow? RadioShow { get; set; }
+
+	[ForeignKey("studio_id")]
 	public Studio? Studio { get; set; }
 
 	public Timeslot() {

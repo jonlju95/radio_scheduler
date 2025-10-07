@@ -1,51 +1,36 @@
-using Dapper;
-using Microsoft.Data.Sqlite;
+using System.Data;
+using Microsoft.EntityFrameworkCore;
 using RadioScheduler.Interfaces;
 using RadioScheduler.Models;
+using RadioScheduler.Utils;
 
 namespace RadioScheduler.Repositories;
 
-public class StudioRepository : IStudioRepository {
-	private const string connectionString = "Data Source=localDB.db";
-	private static SqliteConnection dbConnection => new SqliteConnection(connectionString);
+public class StudioRepository(AppDbContext dbContext, IDbConnection dbConnection) : IStudioRepository {
 
 	public async Task<IEnumerable<Studio>> GetStudios() {
-		const string sql = "SELECT id, name, capacity, booking_price FROM global_studio";
-
-		return await dbConnection.QueryAsync<Studio>(sql);
+		return await dbContext.Studios.ToListAsync();
 	}
 
 	public async Task<Studio?> GetStudio(Guid id) {
-		const string sql = "SELECT id, name, capacity, booking_price FROM global_studio WHERE id = @id";
-
-		return await dbConnection.QueryFirstOrDefaultAsync<Studio>(sql, new { id });
+		return await dbContext.Studios.FindAsync(id);
 	}
 
 	public async Task CreateStudio(Studio studio) {
-		const string sql =
-			"INSERT INTO global_studio (id, name, capacity, booking_price) VALUES (@id, @name, @capacity, @bookingPrice)";
-
-		await dbConnection.ExecuteAsync(sql,
-			new {
-				id = studio.Id, name = studio.Name, capacity = studio.Capacity,
-				bookingPrice = studio.BookingPrice
-			});
+		dbContext.Studios.Add(studio);
+		await dbContext.SaveChangesAsync();
 	}
 
 	public async Task UpdateStudio(Studio updatedStudio) {
-		const string sql =
-			"UPDATE global_studio SET name = @name, capacity = @capacity, booking_price = @bookingPrice WHERE id = @id";
-
-		await dbConnection.ExecuteAsync(sql,
-			new {
-				name = updatedStudio.Name, capacity = updatedStudio.Capacity, bookingPrice = updatedStudio.BookingPrice,
-				id = updatedStudio.Id
-			});
+		await dbContext.Studios
+			.Where(s => s.Id.Equals(updatedStudio.Id))
+			.ExecuteUpdateAsync(studio => studio
+				.SetProperty(s => s.Name, updatedStudio.Name)
+				.SetProperty(s => s.BookingPrice, updatedStudio.BookingPrice)
+				.SetProperty(s => s.Capacity, updatedStudio.Capacity));
 	}
 
 	public async Task DeleteStudio(Guid id) {
-		const string sql = "DELETE FROM global_studio WHERE id = @id";
-
-		await dbConnection.ExecuteAsync(sql, new { id });
+		await dbContext.Studios.Where(s => s.Id.Equals(id)).ExecuteDeleteAsync();
 	}
 }

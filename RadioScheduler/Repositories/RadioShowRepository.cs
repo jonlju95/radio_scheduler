@@ -1,47 +1,35 @@
-using Dapper;
-using Microsoft.Data.Sqlite;
+using System.Data;
+using Microsoft.EntityFrameworkCore;
 using RadioScheduler.Interfaces;
 using RadioScheduler.Models;
+using RadioScheduler.Utils;
 
 namespace RadioScheduler.Repositories;
 
-public class RadioShowRepository : IRadioShowRepository {
-	private const string connectionString = "Data Source=localDB.db";
-	private static SqliteConnection dbConnection => new SqliteConnection(connectionString);
+public class RadioShowRepository(AppDbContext dbContext, IDbConnection dbConnection) : IRadioShowRepository {
 
 	public async Task<IEnumerable<RadioShow>> GetRadioShows() {
-		const string sql = "SELECT id, title, duration_min FROM global_radio_show";
-
-		return await dbConnection.QueryAsync<RadioShow>(sql);
+		return await dbContext.RadioShows.ToListAsync();
 	}
 
 	public async Task<RadioShow?> GetRadioShow(Guid id) {
-		const string sql = "SELECT id, title, duration_min FROM global_radio_show WHERE id = @id";
-
-		return await dbConnection.QueryFirstOrDefaultAsync<RadioShow>(sql, new { id = id.ToString("D").ToUpper() });
+		return await dbContext.RadioShows.FindAsync(id);
 	}
 
 	public async Task CreateRadioShow(RadioShow radioShow) {
-		const string sql = "INSERT INTO global_radio_show (id, title, duration_min) " +
-		                   "VALUES (@id, @title, @durationMin)";
-
-		await dbConnection.ExecuteAsync(sql,
-			new { id = radioShow.Id, title = radioShow.Title, durationMin = radioShow.DurationMin });
+		dbContext.RadioShows.Add(radioShow);
+		await dbContext.SaveChangesAsync();
 	}
 
 	public async Task UpdateRadioShow(RadioShow newRadioShow) {
-		const string sql = "UPDATE global_radio_show SET title = @title, duration_min = @durationMin WHERE id = @id";
-
-		await dbConnection.ExecuteAsync(sql,
-			new {
-				title = newRadioShow.Title, durationMin = newRadioShow.DurationMin,
-				id = newRadioShow.Id.ToString("D").ToUpper()
-			});
+		await dbContext.RadioShows
+			.Where(s => s.Id.Equals(newRadioShow.Id))
+			.ExecuteUpdateAsync(radioShow => radioShow
+				.SetProperty(r => r.Title, newRadioShow.Title)
+				.SetProperty(r => r.DurationMin, newRadioShow.DurationMin));
 	}
 
 	public async Task DeleteRadioShow(Guid id) {
-		const string sql = "DELETE FROM global_radio_show WHERE id = @id";
-
-		await dbConnection.ExecuteAsync(sql, new { id = id.ToString("D").ToUpper() });
+		await dbContext.RadioShows.Where(rs => rs.Id.Equals(id)).ExecuteDeleteAsync();
 	}
 }
