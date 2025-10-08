@@ -1,6 +1,7 @@
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RadioScheduler.Models;
 
 namespace RadioScheduler.Utils;
@@ -16,10 +17,17 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 	protected override void OnModelCreating(ModelBuilder modelBuilder) {
 		base.OnModelCreating(modelBuilder);
 
+		ValueConverter<DateOnly, long> unixMillisConverter = new ValueConverter<DateOnly, long>(
+			v => (long)(v.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc)
+			            - DateTime.UnixEpoch).TotalMilliseconds,
+			v => DateOnly.FromDateTime(
+				DateTimeOffset.FromUnixTimeMilliseconds(v).UtcDateTime)
+		);
+
 		modelBuilder.Entity<RadioShow>().ToTable("global_radio_show");
 		modelBuilder.Entity<RadioHost>().ToTable("global_radio_host");
 		modelBuilder.Entity<Studio>().ToTable("global_studio");
-		modelBuilder.Entity<Schedule>().ToTable("global_schedule");
+		modelBuilder.Entity<Schedule>().ToTable("global_schedule").Ignore(s => s.TableauIds);
 
 		modelBuilder.Entity<Timeslot>()
 			.HasMany(t => t.RadioHosts)
@@ -29,6 +37,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 				j => j.HasOne<RadioHost>().WithMany().HasForeignKey("host_id"),
 				j => j.HasOne<Timeslot>().WithMany().HasForeignKey("timeslot_id")
 			);
+
+		modelBuilder.Entity<Tableau>().Property(t => t.Date).HasConversion(unixMillisConverter);
 
 		foreach (IMutableEntityType entityType in modelBuilder.Model.GetEntityTypes()) {
 			entityType.SetTableName(entityType.GetTableName()?.ToLower());
