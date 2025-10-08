@@ -1,12 +1,11 @@
-using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 
 namespace RadioScheduler.Models;
 
 public class Studio {
 	public Guid Id { get; init; } = Guid.NewGuid();
-	public string Name { get; set; } = "";
-
-	[Column("booking_price")] public decimal BookingPrice { get; set; }
+	[MaxLength(255)] public string Name { get; set; } = "";
+	public decimal BookingPrice { get; set; }
 	public int Capacity { get; set; }
 
 	public Studio() {

@@ -9,20 +9,20 @@ namespace RadioScheduler.Repositories;
 public class RadioShowRepository(AppDbContext dbContext, IDbConnection dbConnection) : IRadioShowRepository {
 
 	public async Task<IEnumerable<RadioShow>> GetRadioShows() {
-		return await dbContext.RadioShows.ToListAsync();
+		return await dbContext.RadioShow.ToListAsync();
 	}
 
 	public async Task<RadioShow?> GetRadioShow(Guid id) {
-		return await dbContext.RadioShows.FindAsync(id);
+		return await dbContext.RadioShow.FindAsync(id);
 	}
 
 	public async Task CreateRadioShow(RadioShow radioShow) {
-		dbContext.RadioShows.Add(radioShow);
+		dbContext.RadioShow.Add(radioShow);
 		await dbContext.SaveChangesAsync();
 	}
 
 	public async Task UpdateRadioShow(RadioShow newRadioShow) {
-		await dbContext.RadioShows
+		await dbContext.RadioShow
 			.Where(s => s.Id.Equals(newRadioShow.Id))
 			.ExecuteUpdateAsync(radioShow => radioShow
 				.SetProperty(r => r.Title, newRadioShow.Title)
@@ -30,6 +30,6 @@ public class RadioShowRepository(AppDbContext dbContext, IDbConnection dbConnect
 	}
 
 	public async Task DeleteRadioShow(Guid id) {
-		await dbContext.RadioShows.Where(rs => rs.Id.Equals(id)).ExecuteDeleteAsync();
+		await dbContext.RadioShow.Where(rs => rs.Id.Equals(id)).ExecuteDeleteAsync();
 	}
 }

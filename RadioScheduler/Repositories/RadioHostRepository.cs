@@ -9,20 +9,20 @@ namespace RadioScheduler.Repositories;
 public class RadioHostRepository(AppDbContext dbContext, IDbConnection dbConnection) : IRadioHostRepository {
 
 	public async Task<IEnumerable<RadioHost>> GetHosts() {
-		return await dbContext.RadioHosts.ToListAsync();
+		return await dbContext.RadioHost.ToListAsync();
 	}
 
 	public async Task<RadioHost?> GetHost(Guid id) {
-		return await dbContext.RadioHosts.FindAsync(id);
+		return await dbContext.RadioHost.FindAsync(id);
 	}
 
 	public async Task CreateHost(RadioHost host) {
-		dbContext.RadioHosts.Add(host);
+		dbContext.RadioHost.Add(host);
 		await dbContext.SaveChangesAsync();
 	}
 
 	public async Task UpdateHost(RadioHost newHost) {
-		await dbContext.RadioHosts
+		await dbContext.RadioHost
 			.Where(rh => rh.Id.Equals(newHost.Id))
 			.ExecuteUpdateAsync(radioHost => radioHost
 				.SetProperty(r => r.FirstName, newHost.FirstName)
@@ -31,6 +31,6 @@ public class RadioHostRepository(AppDbContext dbContext, IDbConnection dbConnect
 	}
 
 	public async Task DeleteHost(Guid id) {
-		await dbContext.RadioHosts.Where(rh => rh.Id.Equals(id)).ExecuteDeleteAsync();
+		await dbContext.RadioHost.Where(rh => rh.Id.Equals(id)).ExecuteDeleteAsync();
 	}
 }

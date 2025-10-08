@@ -9,20 +9,20 @@ namespace RadioScheduler.Repositories;
 public class StudioRepository(AppDbContext dbContext, IDbConnection dbConnection) : IStudioRepository {
 
 	public async Task<IEnumerable<Studio>> GetStudios() {
-		return await dbContext.Studios.ToListAsync();
+		return await dbContext.Studio.ToListAsync();
 	}
 
 	public async Task<Studio?> GetStudio(Guid id) {
-		return await dbContext.Studios.FindAsync(id);
+		return await dbContext.Studio.FindAsync(id);
 	}
 
 	public async Task CreateStudio(Studio studio) {
-		dbContext.Studios.Add(studio);
+		dbContext.Studio.Add(studio);
 		await dbContext.SaveChangesAsync();
 	}
 
 	public async Task UpdateStudio(Studio updatedStudio) {
-		await dbContext.Studios
+		await dbContext.Studio
 			.Where(s => s.Id.Equals(updatedStudio.Id))
 			.ExecuteUpdateAsync(studio => studio
 				.SetProperty(s => s.Name, updatedStudio.Name)
@@ -31,6 +31,6 @@ public class StudioRepository(AppDbContext dbContext, IDbConnection dbConnection
 	}
 
 	public async Task DeleteStudio(Guid id) {
-		await dbContext.Studios.Where(s => s.Id.Equals(id)).ExecuteDeleteAsync();
+		await dbContext.Studio.Where(s => s.Id.Equals(id)).ExecuteDeleteAsync();
 	}
 }

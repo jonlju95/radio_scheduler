@@ -6,7 +6,7 @@ public class Tableau {
 	public Guid Id { get; init; } = Guid.NewGuid();
 	public DateOnly Date { get; init; }
 
-	[Column("schedule_id")] public Guid ScheduleId { get; init; }
+	[ForeignKey(nameof(ScheduleId))] public Guid ScheduleId { get; init; }
 	public List<Timeslot> Timeslots { get; set; } = [];
 
 	public Tableau() {
