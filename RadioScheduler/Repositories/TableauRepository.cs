@@ -9,7 +9,7 @@ namespace RadioScheduler.Repositories;
 public class TableauRepository(AppDbContext dbContext, IDbConnection dbConnection) : ITableauRepository {
 
 	public async Task<IEnumerable<Tableau>> GetTableaux() {
-		return await dbContext.Tableau.ToListAsync();
+		return await dbContext.Tableau.OrderBy(t => t.Date).ToListAsync();
 	}
 
 	public async Task<Tableau?> GetTableau(Guid id) {
