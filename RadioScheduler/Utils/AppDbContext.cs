@@ -12,7 +12,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 	public DbSet<Studio> Studio { get; set; }
 	public DbSet<Timeslot> Timeslot { get; set; }
 	public DbSet<Tableau> Tableau { get; set; }
-	public DbSet<Schedule> Schedule { get; set; }
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder) {
 		base.OnModelCreating(modelBuilder);
@@ -27,7 +26,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 		modelBuilder.Entity<RadioShow>().ToTable("global_radio_show");
 		modelBuilder.Entity<RadioHost>().ToTable("global_radio_host");
 		modelBuilder.Entity<Studio>().ToTable("global_studio");
-		modelBuilder.Entity<Schedule>().ToTable("global_schedule").Ignore(s => s.TableauIds);
 
 		modelBuilder.Entity<Timeslot>()
 			.HasMany(t => t.RadioHosts)
