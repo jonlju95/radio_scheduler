@@ -1,11 +1,18 @@
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using RadioScheduler.Models;
+using RadioScheduler.Models.Auth;
+using RadioScheduler.Utils.Enum;
 
 namespace RadioScheduler.Utils;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options) {
+	public DbSet<User> UserDb { get; set; }
+	public DbSet<Role> RoleDb { get; set; }
+	public DbSet<UserRole> UserRoleDb { get; set; }
+	public DbSet<UserLogin> UserLoginDb { get; set; }
 	public DbSet<RadioShow> RadioShow { get; set; }
 	public DbSet<RadioHost> RadioHost { get; set; }
 	public DbSet<Studio> Studio { get; set; }
@@ -13,8 +20,20 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 	public DbSet<Tableau> Tableau { get; set; }
 	public DbSet<Schedule> Schedule { get; set; }
 
+	protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
+		optionsBuilder
+			.UseSqlite("Data Source=localDB.db")
+			.EnableSensitiveDataLogging()
+			.LogTo(Console.WriteLine, LogLevel.Information);
+	}
+
 	protected override void OnModelCreating(ModelBuilder modelBuilder) {
 		base.OnModelCreating(modelBuilder);
+
+		modelBuilder.Entity<Role>(ConfigureRole);
+		modelBuilder.Entity<User>(ConfigureUser);
+		modelBuilder.Entity<UserRole>(ConfigureUserRole);
+		modelBuilder.Entity<UserLogin>(ConfigureUserLogin);
 
 		modelBuilder.Entity<RadioShow>().ToTable("global_radio_show");
 		modelBuilder.Entity<RadioHost>().ToTable("global_radio_host");
@@ -38,6 +57,87 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 		}
 	}
 
+	private static void ConfigureUser(EntityTypeBuilder<User> builder) {
+		builder.ToTable("global_user");
+
+		builder.HasKey(u => u.Id);
+
+		builder.Property(u => u.Id)
+			.HasColumnName("id")
+			.HasConversion(v => v.ToString(), v => Guid.Parse(v))
+			.IsRequired();
+
+		builder.Property(u => u.FirstName).HasColumnName("first_name").HasMaxLength(255);
+		builder.Property(u => u.LastName).HasColumnName("last_name").HasMaxLength(255);
+		builder.Property(u => u.Username).HasColumnName("username").HasMaxLength(255).IsRequired();
+		builder.Property(u => u.Password).HasColumnName("password").HasMaxLength(255).IsRequired();
+		builder.Property(u => u.Phone).HasColumnName("phone").HasMaxLength(50);
+		builder.Property(u => u.Email).HasColumnName("email").HasMaxLength(255);
+		builder.Property(u => u.Address).HasColumnName("address").HasMaxLength(255);
+		builder.Property(u => u.City).HasColumnName("city").HasMaxLength(255);
+		builder.Property(u => u.ZipCode).HasColumnName("zip_code").HasMaxLength(50);
+
+		builder.Property(u => u.CreatedAt)
+			.HasColumnName("created_at")
+			.HasDefaultValueSql("CURRENT_TIMESTAMP")
+			.IsRequired();
+
+		builder
+			.HasMany<UserLogin>()
+			.WithOne(ul => ul.User)
+			.HasForeignKey(ul => ul.UserId)
+			.IsRequired();
+	}
+
+	private static void ConfigureRole(EntityTypeBuilder<Role> builder) {
+		builder.ToTable("global_role");
+
+		builder.HasKey(r => r.Id);
+
+		builder.Property(r => r.Id)
+			.HasColumnName("id")
+			.HasConversion(v => v.ToString(), v => Guid.Parse(v))
+			.IsRequired();
+
+		builder.Property(r => r.RoleName)
+			.HasColumnName("role_name")
+			.HasDefaultValue(RoleEnum.CONTRIBUTOR);
+	}
+
+	private static void ConfigureUserRole(EntityTypeBuilder<UserRole> builder) {
+		builder.ToTable("user_role");
+
+		builder.HasKey(ur => new { ur.UserId, ur.RoleId });
+
+		builder.HasOne(ur => ur.User)
+			.WithMany(ur => ur.UserRoles)
+			.HasForeignKey(ur => ur.UserId);
+
+		builder.HasOne(ur => ur.Role)
+			.WithMany(r => r.UserRoles)
+			.HasForeignKey(ur => ur.RoleId);
+	}
+
+	private static void ConfigureUserLogin(EntityTypeBuilder<UserLogin> builder) {
+		builder.ToTable("user_login");
+
+		builder.HasKey(l => l.Id);
+
+		builder.Property(l => l.Id)
+			.HasColumnName("id")
+			.HasConversion(v => v.ToString(), v => Guid.Parse(v))
+			.IsRequired();
+
+		builder.Property(l => l.LoginTime)
+			.HasColumnName("login_time")
+			.HasDefaultValueSql("CURRENT_TIMESTAMP")
+			.IsRequired();
+
+		builder.Property(l => l.UserId)
+			.HasColumnName("user_id")
+			.IsRequired();
+	}
+
 	private static string ToSnakeCase(string? input) {
 		if (string.IsNullOrEmpty(input)) {
 			return input ?? string.Empty;
@@ -52,6 +152,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
 			stringBuilder.Append(char.ToLower(c));
 		}
+
 		return stringBuilder.ToString();
 	}
 }

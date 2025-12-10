@@ -1,12 +1,19 @@
 using System.Data;
 using System.Data.Common;
+using System.Text;
 using Dapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using RadioScheduler.Interfaces;
+using RadioScheduler.Interfaces.Auth;
 using RadioScheduler.Models.Api;
 using RadioScheduler.Repositories;
+using RadioScheduler.Repositories.Auth;
 using RadioScheduler.Services;
+using RadioScheduler.Services.Auth;
 using RadioScheduler.Utils;
+using RadioScheduler.Utils.AuthHelpers;
 using RadioScheduler.Utils.DatabaseHandlers;
 
 namespace RadioScheduler.Extensions;
@@ -21,6 +28,9 @@ internal static class WebApplicationBuilderExtensions {
 		builder.Services.AddControllers();
 
 		// Repositories
+		builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+		builder.Services.AddScoped<IUserRepository, UserRepository>();
+
 		builder.Services.AddScoped<IRadioShowRepository, RadioShowRepository>();
 		builder.Services.AddScoped<IRadioHostRepository, RadioHostRepository>();
 		builder.Services.AddScoped<IStudioRepository, StudioRepository>();
@@ -29,6 +39,9 @@ internal static class WebApplicationBuilderExtensions {
 		builder.Services.AddScoped<IScheduleRepository, ScheduleRepository>();
 
 		// Services
+		builder.Services.AddScoped<AuthService>();
+		builder.Services.AddScoped<UserService>();
+
 		builder.Services.AddScoped<RadioShowService>();
 		builder.Services.AddScoped<RadioHostService>();
 		builder.Services.AddScoped<StudioService>();
@@ -37,6 +50,8 @@ internal static class WebApplicationBuilderExtensions {
 		builder.Services.AddScoped<ScheduleService>();
 
 		builder.Services.AddScoped<ApiResponse>();
+
+		builder.Services.AddSingleton<TokenService>();
 	}
 
 	public static void ConfigureDatabase(this WebApplicationBuilder builder) {
@@ -74,5 +89,23 @@ internal static class WebApplicationBuilderExtensions {
 		SqlMapper.AddTypeHandler(new GuidHandler());
 		SqlMapper.AddTypeHandler(new UnixMsDateOnlyHandler());
 		DefaultTypeMap.MatchNamesWithUnderscores = true;
+	}
+
+	public static void ConfigureAuth(this WebApplicationBuilder builder) {
+		builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+			.AddJwtBearer(options => {
+				options.TokenValidationParameters = new TokenValidationParameters {
+					ValidateIssuer = true,
+					ValidateAudience = true,
+					ValidateLifetime = true,
+					ValidateIssuerSigningKey = true,
+					ValidIssuer = builder.Configuration["Jwt:Issuer"],
+					ValidAudience = builder.Configuration["Jwt:Audience"],
+					IssuerSigningKey = new SymmetricSecurityKey(
+						Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+				};
+			});
+
+		builder.Services.AddAuthorization();
 	}
 }
