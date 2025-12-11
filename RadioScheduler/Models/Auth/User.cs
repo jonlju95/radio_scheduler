@@ -13,7 +13,8 @@ public class User {
 	public string? City { get; set; } = string.Empty;
 	public string? ZipCode { get; set; } = string.Empty;
 	public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-	public List<UserRole> UserRoles { get; } = [];
+	public ICollection<UserRole> UserRoles { get; } = [];
+	public ICollection<ContributorPayment> ContributorPayments { get; } = [];
 
 	public User() {
 	}

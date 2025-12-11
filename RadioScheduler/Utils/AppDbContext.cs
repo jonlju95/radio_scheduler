@@ -13,6 +13,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 	public DbSet<Role> RoleDb { get; set; }
 	public DbSet<UserRole> UserRoleDb { get; set; }
 	public DbSet<UserLogin> UserLoginDb { get; set; }
+
+	public DbSet<ContributorPayment> ContributorPaymentDb { get; set; }
+	public DbSet<Accounting> AccountingDb { get; set; }
+
 	public DbSet<RadioShow> RadioShow { get; set; }
 	public DbSet<RadioHost> RadioHost { get; set; }
 	public DbSet<Studio> Studio { get; set; }
@@ -34,6 +38,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 		modelBuilder.Entity<User>(ConfigureUser);
 		modelBuilder.Entity<UserRole>(ConfigureUserRole);
 		modelBuilder.Entity<UserLogin>(ConfigureUserLogin);
+		modelBuilder.Entity<ContributorPayment>(ConfigureContributorPayment);
 
 		modelBuilder.Entity<RadioShow>().ToTable("global_radio_show");
 		modelBuilder.Entity<RadioHost>().ToTable("global_radio_host");
@@ -137,6 +142,31 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 			.HasColumnName("user_id")
 			.IsRequired();
 	}
+
+	private static void ConfigureContributorPayment(EntityTypeBuilder<ContributorPayment> builder) {
+		builder.ToTable("contributor_payment");
+
+		builder.HasKey(l => l.Id);
+
+		builder
+			.HasOne(c => c.User)
+			.WithMany(u => u.ContributorPayments)
+			.HasForeignKey(l => l.UserId)
+			.IsRequired();
+
+		builder
+			.HasOne(c => c.Accounting)
+			.WithOne(a => a.ContributorPayment)
+			.HasForeignKey<ContributorPayment>(l => l.AccountingId)
+			.IsRequired();
+
+		builder.Property(c => c.PaymentDate)
+			.HasColumnName("payment_date")
+			.HasDefaultValueSql("CURRENT_TIMESTAMP")
+			.IsRequired();
+	}
+
+
 
 	private static string ToSnakeCase(string? input) {
 		if (string.IsNullOrEmpty(input)) {

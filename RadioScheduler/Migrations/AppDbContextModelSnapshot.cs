@@ -17,6 +17,44 @@ namespace RadioScheduler.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.9");
 
+            modelBuilder.Entity("RadioScheduler.Models.Accounting", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("id");
+
+                    b.Property<string>("AccountName")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("account_name");
+
+                    b.Property<string>("AccountNumber")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("account_number");
+
+                    b.Property<decimal>("Credit")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("credit");
+
+                    b.Property<decimal>("Debit")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("debit");
+
+                    b.Property<DateTime>("TransactionDate")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("transaction_date");
+
+                    b.Property<int>("VAT")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("v_a_t");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("accountingdb");
+                });
+
             modelBuilder.Entity("RadioScheduler.Models.Auth.Role", b =>
                 {
                     b.Property<string>("Id")
@@ -140,6 +178,46 @@ namespace RadioScheduler.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("user_role", (string)null);
+                });
+
+            modelBuilder.Entity("RadioScheduler.Models.ContributorPayment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AccountingId")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("accounting_id");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("amount");
+
+                    b.Property<bool>("IsPaid")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("is_paid");
+
+                    b.Property<DateTime>("PaymentDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("payment_date")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountingId")
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("contributor_payment", (string)null);
                 });
 
             modelBuilder.Entity("RadioScheduler.Models.RadioHost", b =>
@@ -335,6 +413,25 @@ namespace RadioScheduler.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("RadioScheduler.Models.ContributorPayment", b =>
+                {
+                    b.HasOne("RadioScheduler.Models.Accounting", "Accounting")
+                        .WithOne("ContributorPayment")
+                        .HasForeignKey("RadioScheduler.Models.ContributorPayment", "AccountingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RadioScheduler.Models.Auth.User", "User")
+                        .WithMany("ContributorPayments")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Accounting");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("RadioScheduler.Models.Timeslot", b =>
                 {
                     b.HasOne("RadioScheduler.Models.RadioShow", "RadioShow")
@@ -375,6 +472,12 @@ namespace RadioScheduler.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("RadioScheduler.Models.Accounting", b =>
+                {
+                    b.Navigation("ContributorPayment")
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("RadioScheduler.Models.Auth.Role", b =>
                 {
                     b.Navigation("UserRoles");
@@ -382,6 +485,8 @@ namespace RadioScheduler.Migrations
 
             modelBuilder.Entity("RadioScheduler.Models.Auth.User", b =>
                 {
+                    b.Navigation("ContributorPayments");
+
                     b.Navigation("UserRoles");
                 });
 
