@@ -11,18 +11,19 @@ namespace RadioScheduler.Utils;
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options) {
 	public DbSet<User> UserDb { get; set; }
 	public DbSet<Role> RoleDb { get; set; }
+
 	public DbSet<UserRole> UserRoleDb { get; set; }
 	public DbSet<UserLogin> UserLoginDb { get; set; }
 
-	public DbSet<ContributorPayment> ContributorPaymentDb { get; set; }
 	public DbSet<Accounting> AccountingDb { get; set; }
+	public DbSet<AccountingRow> AccountingRowDb { get; set; }
+	public DbSet<ContributorPayment> ContributorPaymentDb { get; set; }
 
 	public DbSet<RadioShow> RadioShow { get; set; }
 	public DbSet<RadioHost> RadioHost { get; set; }
 	public DbSet<Studio> Studio { get; set; }
-	public DbSet<Timeslot> Timeslot { get; set; }
 	public DbSet<Tableau> Tableau { get; set; }
-	public DbSet<Schedule> Schedule { get; set; }
+	public DbSet<Timeslot> Timeslot { get; set; }
 
 	protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
 		optionsBuilder
@@ -40,19 +41,15 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 		modelBuilder.Entity<UserLogin>(ConfigureUserLogin);
 		modelBuilder.Entity<ContributorPayment>(ConfigureContributorPayment);
 
+		modelBuilder.Entity<Accounting>(ConfigureAccounting);
+		modelBuilder.Entity<AccountingRow>(ConfigureAccountingRow);
+
 		modelBuilder.Entity<RadioShow>().ToTable("global_radio_show");
 		modelBuilder.Entity<RadioHost>().ToTable("global_radio_host");
 		modelBuilder.Entity<Studio>().ToTable("global_studio");
-		modelBuilder.Entity<Schedule>().ToTable("global_schedule");
 
-		modelBuilder.Entity<Timeslot>()
-			.HasMany(t => t.RadioHosts)
-			.WithMany()
-			.UsingEntity<Dictionary<string, object>>(
-				"timeslot_host",
-				j => j.HasOne<RadioHost>().WithMany().HasForeignKey("host_id"),
-				j => j.HasOne<Timeslot>().WithMany().HasForeignKey("timeslot_id")
-			);
+		modelBuilder.Entity<Tableau>(ConfigureTableau);
+		modelBuilder.Entity<Timeslot>(ConfigureTimeslot);
 
 		foreach (IMutableEntityType entityType in modelBuilder.Model.GetEntityTypes()) {
 			entityType.SetTableName(entityType.GetTableName()?.ToLower());
@@ -87,6 +84,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 			.HasDefaultValueSql("CURRENT_TIMESTAMP")
 			.IsRequired();
 
+		builder.HasMany(u => u.Roles)
+			.WithOne(ur => ur.User)
+			.HasForeignKey(ur => ur.UserId);
+
 		builder
 			.HasMany<UserLogin>()
 			.WithOne(ul => ul.User)
@@ -104,9 +105,14 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 			.HasConversion(v => v.ToString(), v => Guid.Parse(v))
 			.IsRequired();
 
-		builder.Property(r => r.RoleName)
-			.HasColumnName("role_name")
-			.HasDefaultValue(RoleEnum.CONTRIBUTOR);
+		builder.Property(r => r.Code)
+			.HasConversion<string>()
+			.HasColumnName("role_code")
+			.IsRequired();
+
+		builder.Property(r => r.Title)
+			.HasColumnName("role_title")
+			.HasMaxLength(255);
 	}
 
 	private static void ConfigureUserRole(EntityTypeBuilder<UserRole> builder) {
@@ -115,12 +121,14 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 		builder.HasKey(ur => new { ur.UserId, ur.RoleId });
 
 		builder.HasOne(ur => ur.User)
-			.WithMany(ur => ur.UserRoles)
-			.HasForeignKey(ur => ur.UserId);
+			.WithMany(ur => ur.Roles)
+			.HasForeignKey(ur => ur.UserId)
+			.OnDelete(DeleteBehavior.Cascade);
 
 		builder.HasOne(ur => ur.Role)
-			.WithMany(r => r.UserRoles)
-			.HasForeignKey(ur => ur.RoleId);
+			.WithMany()
+			.HasForeignKey(ur => ur.RoleId)
+			.OnDelete(DeleteBehavior.Cascade);
 	}
 
 	private static void ConfigureUserLogin(EntityTypeBuilder<UserLogin> builder) {
@@ -141,6 +149,27 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 		builder.Property(l => l.UserId)
 			.HasColumnName("user_id")
 			.IsRequired();
+	}
+
+	private static void ConfigureAccounting(EntityTypeBuilder<Accounting> builder) {
+		builder.ToTable("accounting");
+
+		builder.HasKey(a => a.Id);
+
+		builder
+			.HasMany(a => a.AccountingRows)
+			.WithOne(a => a.Accounting)
+			.HasForeignKey(a => a.AccountingId)
+			.IsRequired();
+	}
+
+	private static void ConfigureAccountingRow(EntityTypeBuilder<AccountingRow> builder) {
+		builder.ToTable("accounting_row");
+
+		builder.HasKey(r => r.Id);
+
+		builder.Property(u => u.AccountNumber).HasColumnName("account_number").HasMaxLength(255);
+		builder.Property(u => u.AccountName).HasColumnName("account_name").HasMaxLength(255);
 	}
 
 	private static void ConfigureContributorPayment(EntityTypeBuilder<ContributorPayment> builder) {
@@ -166,7 +195,48 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 			.IsRequired();
 	}
 
+	private static void ConfigureTableau(EntityTypeBuilder<Tableau> builder) {
+		builder.ToTable("global_tableau");
 
+		builder.HasKey(t => t.Id);
+
+		builder.HasMany(t => t.Timeslots)
+			.WithOne(t => t.Tableau)
+			.HasForeignKey(t => t.TableauId)
+			.OnDelete(DeleteBehavior.Cascade);
+	}
+
+	private static void ConfigureTimeslot(EntityTypeBuilder<Timeslot> builder) {
+		builder.ToTable("timeslot");
+
+		builder.HasKey(t => t.Id);
+
+		builder.HasOne(ts => ts.RadioShow)
+			.WithMany()
+			.HasForeignKey(ts => ts.RadioShowId)
+			.OnDelete(DeleteBehavior.SetNull);
+
+		builder.HasOne(ts => ts.Studio)
+			.WithMany()
+			.HasForeignKey(ts => ts.StudioId)
+			.OnDelete(DeleteBehavior.SetNull);
+
+		builder.HasMany(ts => ts.RadioHosts)
+			.WithMany(rh => rh.Timeslots)
+			.UsingEntity(j => {
+				j.ToTable("timeslot_host");
+				j.HasKey("TimeslotsId", "RadioHostsId");
+				j.HasIndex("TimeslotsId", "RadioHostsId");
+			});
+
+		builder.HasIndex(ts => new { ts.StudioId, ts.StartTime, ts.EndTime });
+
+		builder.HasIndex(ts => ts.StudioId)
+			.IsUnique();
+
+		builder.HasIndex(ts => ts.RadioShowId)
+			.IsUnique();
+	}
 
 	private static string ToSnakeCase(string? input) {
 		if (string.IsNullOrEmpty(input)) {

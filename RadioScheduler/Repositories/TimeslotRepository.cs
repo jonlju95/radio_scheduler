@@ -18,9 +18,9 @@ public class TimeslotRepository(AppDbContext dbContext, IDbConnection dbConnecti
 
 		const string sql =
 			"SELECT ts.*, h.*, s.*, st.* FROM timeslot ts " +
-			"LEFT JOIN timeslot_host th ON th.timeslot_id = ts.id " +
-			"LEFT JOIN global_radio_host h ON h.id = th.host_id " +
-			"LEFT JOIN global_radio_show s ON s.id = ts.show_id " +
+			"LEFT JOIN timeslot_host th ON th.timeslots_id = ts.id " +
+			"LEFT JOIN global_radio_host h ON h.id = th.radio_hosts_id " +
+			"LEFT JOIN global_radio_show s ON s.id = ts.radio_show_id " +
 			"LEFT JOIN global_studio st ON st.id = ts.studio_id " +
 			"WHERE ts.id = @id " +
 			"ORDER BY h.is_guest";
@@ -66,7 +66,12 @@ public class TimeslotRepository(AppDbContext dbContext, IDbConnection dbConnecti
 	}
 
 	public async Task<IEnumerable<Timeslot>> GetTimeslotByTableauId(Guid id) {
-		return await dbContext.Timeslot.Where(t => t.TableauId.Equals(id)).ToListAsync();
+		return await dbContext.Timeslot.Where(t => t.TableauId == id)
+			.Include(t => t.RadioShow)
+			.Include(t => t.Studio)
+			.Include(t => t.RadioHosts)
+			.OrderBy(t => t.StartTime)
+			.ToListAsync();
 	}
 
 	public async Task CreateHostTimeslotConnection(Guid timeslotId, Guid hostId) {

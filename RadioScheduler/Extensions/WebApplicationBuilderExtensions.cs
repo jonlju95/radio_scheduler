@@ -36,7 +36,6 @@ internal static class WebApplicationBuilderExtensions {
 		builder.Services.AddScoped<IStudioRepository, StudioRepository>();
 		builder.Services.AddScoped<ITimeslotRepository, TimeslotRepository>();
 		builder.Services.AddScoped<ITableauRepository, TableauRepository>();
-		builder.Services.AddScoped<IScheduleRepository, ScheduleRepository>();
 
 		// Services
 		builder.Services.AddScoped<AuthService>();
@@ -47,7 +46,6 @@ internal static class WebApplicationBuilderExtensions {
 		builder.Services.AddScoped<StudioService>();
 		builder.Services.AddScoped<TimeslotService>();
 		builder.Services.AddScoped<TableauService>();
-		builder.Services.AddScoped<ScheduleService>();
 
 		builder.Services.AddScoped<ApiResponse>();
 

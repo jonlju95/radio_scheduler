@@ -12,11 +12,13 @@ public class UserRepository(AppDbContext dbContext, IDbConnection dbConnection) 
 	}
 
 	public async Task<User?> GetUser(Guid id) {
-		return await dbContext.UserDb.FindAsync(id);
+		return await dbContext.UserDb.Include(u => u.Roles).ThenInclude(ur => ur.Role)
+			.FirstOrDefaultAsync(u => u.Id == id);
 	}
 
 	public async Task<User?> GetUserByUsername(string username) {
-		return await dbContext.UserDb.FirstOrDefaultAsync(u => u.Username == username);
+		return await dbContext.UserDb.Include(u => u.Roles).ThenInclude(ur => ur.Role)
+			.FirstOrDefaultAsync(u => u.Username == username);
 	}
 
 	public Task CreateUser(User user) {
@@ -36,7 +38,7 @@ public class UserRepository(AppDbContext dbContext, IDbConnection dbConnection) 
 				.SetProperty(u => u.Address, updatedUser.Address)
 				.SetProperty(u => u.City, updatedUser.City)
 				.SetProperty(u => u.ZipCode, updatedUser.ZipCode)
-				);
+			);
 	}
 
 	public Task DeleteUser(Guid id) {

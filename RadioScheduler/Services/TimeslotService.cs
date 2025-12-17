@@ -1,3 +1,4 @@
+using Dapper;
 using RadioScheduler.Interfaces;
 using RadioScheduler.Models;
 
@@ -98,10 +99,10 @@ public class TimeslotService(
 		return true;
 	}
 
-	private List<RadioHost> AddRadioHosts(Guid timeslotId, List<RadioHost> radioHosts) {
+	private List<RadioHost> AddRadioHosts(Guid timeslotId, ICollection<RadioHost> radioHosts) {
 		List<RadioHost> newRadioHosts = [];
 
-		radioHosts.ForEach(radioHost => {
+		radioHosts.AsList().ForEach(radioHost => {
 			RadioHost? host = radioHostRepository.GetHost(radioHost.Id).Result;
 			if (host == null) {
 				return;

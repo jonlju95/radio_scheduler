@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace RadioScheduler.Models.Auth;
 
 public class User {
@@ -13,8 +15,8 @@ public class User {
 	public string? City { get; set; } = string.Empty;
 	public string? ZipCode { get; set; } = string.Empty;
 	public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-	public ICollection<UserRole> UserRoles { get; } = [];
-	public ICollection<ContributorPayment> ContributorPayments { get; } = [];
+	public ICollection<UserRole> Roles { get; } = new List<UserRole>();
+	public ICollection<ContributorPayment> ContributorPayments { get; } = new List<ContributorPayment>();
 
 	public User() {
 	}
@@ -45,6 +47,6 @@ public class User {
 		this.City = user.City;
 		this.ZipCode = user.ZipCode;
 		this.CreatedAt = user.CreatedAt;
-		// this.Roles = user.Roles;
+		this.Roles = user.Roles;
 	}
 }

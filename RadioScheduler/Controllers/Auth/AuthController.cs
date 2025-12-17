@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RadioScheduler.Models.Api;
 using RadioScheduler.Models.Auth;

@@ -1,26 +1,31 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace RadioScheduler.Models;
 
 public class Timeslot {
-	public Guid Id { get; init; } = Guid.NewGuid();
+	public Guid Id { get; set; } = Guid.NewGuid();
 
 	public DateTime StartTime { get; set; }
-
 	public DateTime EndTime { get; set; }
 
-	[ForeignKey(nameof(TableauId))] public Guid TableauId { get; init; }
+	public Guid TableauId { get; set; }
 
-	public List<RadioHost> RadioHosts { get; set; } = [];
+	[JsonIgnore]
+	public Tableau Tableau { get; set; } = null!;
 
-	[ForeignKey(nameof(RadioShow.Id))] public RadioShow? RadioShow { get; set; }
+	public ICollection<RadioHost> RadioHosts { get; set; } = new List<RadioHost>();
 
-	[ForeignKey(nameof(Studio.Id))] public Studio? Studio { get; set; }
+	public Guid? RadioShowId { get; set; }
+	public RadioShow? RadioShow { get; set; }
+
+	public Guid? StudioId { get; set; }
+	public Studio? Studio { get; set; }
 
 	public Timeslot() {
 	}
 
-	public Timeslot(Guid id, DateTime startTime, DateTime endTime, Guid tableauId, List<RadioHost> hosts,
+	public Timeslot(Guid id, DateTime startTime, DateTime endTime, Guid tableauId, ICollection<RadioHost> hosts,
 		RadioShow? show, Studio? studio) {
 		this.Id = id;
 		this.StartTime = startTime;

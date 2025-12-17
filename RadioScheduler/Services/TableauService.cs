@@ -10,7 +10,13 @@ public class TableauService(ITableauRepository tableauRepository, ITimeslotRepos
 	}
 
 	public async Task<Tableau?> GetTableau(Guid id) {
-		return await tableauRepository.GetTableau(id);
+		Tableau? tableau = await tableauRepository.GetTableau(id);
+
+		if (tableau != null) {
+			tableau.Timeslots = timeslotRepository.GetTimeslotByTableauId(id).Result.ToList();
+		}
+
+		return tableau;
 	}
 
 	public async Task<Tableau?> CreateTableau(Tableau tableau) {
@@ -18,7 +24,7 @@ public class TableauService(ITableauRepository tableauRepository, ITimeslotRepos
 			return null;
 		}
 
-		Tableau newTableau = new Tableau(tableau.Id, tableau.Date, tableau.ScheduleId);
+		Tableau newTableau = new Tableau(tableau.Id, tableau.Date);
 
 		await tableauRepository.CreateTableau(newTableau);
 		return newTableau;
@@ -29,7 +35,7 @@ public class TableauService(ITableauRepository tableauRepository, ITimeslotRepos
 			return false;
 		}
 
-		Tableau newTableau = new Tableau(updatedTableau.Id, updatedTableau.Date, updatedTableau.ScheduleId);
+		Tableau newTableau = new Tableau(updatedTableau.Id, updatedTableau.Date);
 
 		await tableauRepository.UpdateTableau(newTableau);
 		return true;
@@ -47,8 +53,7 @@ public class TableauService(ITableauRepository tableauRepository, ITimeslotRepos
 	public async Task<List<Guid?>> CreateTableauForSchedule(Guid scheduleId, int year, int month) {
 		List<Guid?> tableauList = [];
 		for (int day = 1; day <= DateTime.DaysInMonth(year, month); day++) {
-			Tableau newTableau = new Tableau(Guid.NewGuid(), new DateOnly(year, month, day),
-				scheduleId);
+			Tableau newTableau = new Tableau(Guid.NewGuid(), new DateOnly(year, month, day));
 			await tableauRepository.CreateTableau(newTableau);
 			tableauList.Add(newTableau.Id);
 		}
@@ -62,7 +67,9 @@ public class TableauService(ITableauRepository tableauRepository, ITimeslotRepos
 				? date
 				: DateOnly.FromDateTime(DateTime.Now));
 
-		if (tableau != null) {
+		if (tableau == null) {
+			await this.CreateTableau(new Tableau(Guid.NewGuid(), date));
+		} else {
 			tableau.Timeslots = timeslotRepository.GetTimeslotByTableauId(tableau.Id).Result.ToList();
 		}
 

@@ -5,6 +5,7 @@ using RadioScheduler.Services;
 
 namespace RadioScheduler.Controllers;
 
+[Route("/[controller]x")]
 public class TableauController(TableauService tableauService, ApiResponse apiResponse)
 	: BaseApiController(apiResponse) {
 

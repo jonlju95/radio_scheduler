@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace RadioScheduler.Models;
 
@@ -8,6 +9,9 @@ public class RadioHost {
 	[MaxLength(255)] public string LastName { get; set; } = "";
 
 	public bool IsGuest { get; set; }
+
+	[JsonIgnore]
+	public ICollection<Timeslot> Timeslots { get; set; } = new List<Timeslot>();
 
 	public RadioHost() {
 	}
