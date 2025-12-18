@@ -236,6 +236,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
 		builder.HasIndex(ts => ts.RadioShowId)
 			.IsUnique();
+
+		builder.Ignore(ts => ts.RadioHostIds);
 	}
 
 	private static string ToSnakeCase(string? input) {

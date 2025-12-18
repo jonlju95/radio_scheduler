@@ -57,8 +57,8 @@ public class TimeslotRepository(AppDbContext dbContext, IDbConnection dbConnecti
 			.ExecuteUpdateAsync(timeslot => timeslot
 				.SetProperty(t => t.StartTime, newTimeslot.StartTime)
 				.SetProperty(t => t.EndTime, newTimeslot.EndTime)
-				.SetProperty(t => t.RadioShow, newTimeslot.RadioShow)
-				.SetProperty(t => t.Studio, newTimeslot.Studio));
+				.SetProperty(t => t.RadioShowId, newTimeslot.RadioShowId)
+				.SetProperty(t => t.StudioId, newTimeslot.StudioId));
 	}
 
 	public async Task DeleteTimeslot(Guid id) {
@@ -75,13 +75,13 @@ public class TimeslotRepository(AppDbContext dbContext, IDbConnection dbConnecti
 	}
 
 	public async Task CreateHostTimeslotConnection(Guid timeslotId, Guid hostId) {
-		const string sql = "INSERT INTO timeslot_host (timeslot_id, host_id) VALUES (@timeslotId, @hostId)";
+		const string sql = "INSERT INTO timeslot_host (timeslots_id, radio_hosts_id) VALUES (@timeslotId, @hostId)";
 
 		await dbConnection.ExecuteAsync(sql, new { timeslotId, hostId });
 	}
 
 	public Task DeleteHostTimeslotConnection(Guid timeslotId, Guid hostId) {
-		const string sql = "DELETE FROM timeslot_host WHERE timeslot_id = @timeslotId AND host_id = @hostId";
+		const string sql = "DELETE FROM timeslot_host WHERE timeslots_id = @timeslotId AND radio_hosts_id = @hostId";
 
 		return dbConnection.ExecuteAsync(sql, new { timeslotId, hostId });
 	}

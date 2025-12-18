@@ -12,7 +12,7 @@ public class StudioRepository(AppDbContext dbContext, IDbConnection dbConnection
 		return await dbContext.Studio.ToListAsync();
 	}
 
-	public async Task<Studio?> GetStudio(Guid id) {
+	public async Task<Studio?> GetStudio(Guid? id) {
 		return await dbContext.Studio.FindAsync(id);
 	}
 

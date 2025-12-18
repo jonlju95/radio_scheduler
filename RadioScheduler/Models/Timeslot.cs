@@ -12,8 +12,9 @@ public class Timeslot {
 	public Guid TableauId { get; set; }
 
 	[JsonIgnore]
-	public Tableau Tableau { get; set; } = null!;
+	public Tableau? Tableau { get; set; } = null!;
 
+	public ICollection<Guid> RadioHostIds { get; set; } = new List<Guid>();
 	public ICollection<RadioHost> RadioHosts { get; set; } = new List<RadioHost>();
 
 	public Guid? RadioShowId { get; set; }
@@ -25,14 +26,13 @@ public class Timeslot {
 	public Timeslot() {
 	}
 
-	public Timeslot(Guid id, DateTime startTime, DateTime endTime, Guid tableauId, ICollection<RadioHost> hosts,
-		RadioShow? show, Studio? studio) {
+	public Timeslot(Guid id, DateTime startTime, DateTime endTime, Guid tableauId,
+		Guid? showId, Guid? studioId) {
 		this.Id = id;
 		this.StartTime = startTime;
 		this.EndTime = endTime;
 		this.TableauId = tableauId;
-		this.RadioHosts = hosts;
-		this.RadioShow = show;
-		this.Studio = studio;
+		this.RadioShowId = showId;
+		this.StudioId = studioId;
 	}
 }

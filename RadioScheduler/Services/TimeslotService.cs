@@ -25,12 +25,11 @@ public class TimeslotService(
 			return null;
 		}
 
-		Timeslot newTimeslot = new Timeslot(timeslot.Id, timeslot.StartTime, timeslot.EndTime, timeslot.TableauId,
-			timeslot.RadioHosts, timeslot.RadioShow, timeslot.Studio);
+		Timeslot newTimeslot = new Timeslot(timeslot.Id, timeslot.StartTime, timeslot.EndTime, timeslot.TableauId, timeslot.RadioShowId, timeslot.StudioId);
 
 		await timeslotRepository.CreateTimeslot(newTimeslot);
 
-		newTimeslot.RadioHosts = this.AddRadioHosts(newTimeslot.Id, newTimeslot.RadioHosts);
+		newTimeslot.RadioHosts = this.AddRadioHosts(newTimeslot.Id, timeslot.RadioHostIds);
 
 		if (newTimeslot.RadioShow != null) {
 			newTimeslot.RadioShow = await radioShowRepository.GetRadioShow(newTimeslot.RadioShow.Id);
@@ -49,18 +48,18 @@ public class TimeslotService(
 		}
 
 		Timeslot newTimeslot = new Timeslot(id, updatedTimeslot.StartTime, updatedTimeslot.EndTime,
-			updatedTimeslot.TableauId, updatedTimeslot.RadioHosts, updatedTimeslot.RadioShow, updatedTimeslot.Studio);
+			updatedTimeslot.TableauId, updatedTimeslot.RadioShowId, updatedTimeslot.StudioId);
 
 		await timeslotRepository.UpdateTimeslot(newTimeslot);
 
-		newTimeslot.RadioHosts = this.AddRadioHosts(newTimeslot.Id, newTimeslot.RadioHosts);
+		newTimeslot.RadioHosts = this.AddRadioHosts(newTimeslot.Id, updatedTimeslot.RadioHostIds);
 
-		if (newTimeslot.RadioShow != null) {
-			newTimeslot.RadioShow = await radioShowRepository.GetRadioShow(newTimeslot.RadioShow.Id);
+		if (newTimeslot.RadioShowId.HasValue) {
+			newTimeslot.RadioShow = await radioShowRepository.GetRadioShow(newTimeslot.RadioShowId);
 		}
 
-		if (newTimeslot.Studio != null) {
-			newTimeslot.Studio = await studioRepository.GetStudio(newTimeslot.Studio.Id);
+		if (newTimeslot.StudioId.HasValue) {
+			newTimeslot.Studio = await studioRepository.GetStudio(newTimeslot.StudioId);
 		}
 
 		return true;
@@ -99,11 +98,11 @@ public class TimeslotService(
 		return true;
 	}
 
-	private List<RadioHost> AddRadioHosts(Guid timeslotId, ICollection<RadioHost> radioHosts) {
+	private List<RadioHost> AddRadioHosts(Guid timeslotId, ICollection<Guid> radioHostIds) {
 		List<RadioHost> newRadioHosts = [];
 
-		radioHosts.AsList().ForEach(radioHost => {
-			RadioHost? host = radioHostRepository.GetHost(radioHost.Id).Result;
+		radioHostIds.AsList().ForEach(hostId => {
+			RadioHost? host = radioHostRepository.GetHost(hostId).Result;
 			if (host == null) {
 				return;
 			}
