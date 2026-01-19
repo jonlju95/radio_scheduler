@@ -5,6 +5,7 @@ using Dapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using RadioScheduler.Interfaces;
 using RadioScheduler.Interfaces.Auth;
 using RadioScheduler.Models.Api;
@@ -13,12 +14,15 @@ using RadioScheduler.Repositories.Auth;
 using RadioScheduler.Services;
 using RadioScheduler.Services.Auth;
 using RadioScheduler.Utils;
-using RadioScheduler.Utils.AuthHelpers;
 using RadioScheduler.Utils.DatabaseHandlers;
 
 namespace RadioScheduler.Extensions;
 
 internal static class WebApplicationBuilderExtensions {
+	public static void ConfigureConfiguration(this WebApplicationBuilder builder) {
+		builder.Configuration.AddUserSecrets(typeof(Program).Assembly);
+	}
+
 	public static void ConfigureLogging(this WebApplicationBuilder builder) {
 		builder.Logging.ClearProviders();
 		builder.Logging.AddConsole();
@@ -80,7 +84,32 @@ internal static class WebApplicationBuilderExtensions {
 
 	public static void ConfigureSwagger(this WebApplicationBuilder builder) {
 		builder.Services.AddEndpointsApiExplorer();
-		builder.Services.AddSwaggerGen();
+		builder.Services.AddSwaggerGen(o => {
+			OpenApiSecurityScheme securityScheme = new OpenApiSecurityScheme {
+				Name = "JWT Authentication",
+				Description = "Enter your JWT token in this field",
+				In = ParameterLocation.Header,
+				Type = SecuritySchemeType.Http,
+				Scheme = "Bearer",
+				BearerFormat = "JWT",
+			};
+
+			o.AddSecurityDefinition("Bearer", securityScheme);
+
+			OpenApiSecurityRequirement securityRequirement = new OpenApiSecurityRequirement {
+				{
+					new OpenApiSecurityScheme {
+						Reference = new OpenApiReference {
+							Type = ReferenceType.SecurityScheme,
+							Id = "Bearer"
+						}
+					},
+					[]
+				}
+			};
+
+			o.AddSecurityRequirement(securityRequirement);
+		});
 	}
 
 	public static void ConfigureDapper() {
@@ -91,16 +120,14 @@ internal static class WebApplicationBuilderExtensions {
 
 	public static void ConfigureAuth(this WebApplicationBuilder builder) {
 		builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-			.AddJwtBearer(options => {
-				options.TokenValidationParameters = new TokenValidationParameters {
-					ValidateIssuer = true,
-					ValidateAudience = true,
-					ValidateLifetime = true,
-					ValidateIssuerSigningKey = true,
+			.AddJwtBearer(o => {
+				o.RequireHttpsMetadata = false;
+				o.TokenValidationParameters = new TokenValidationParameters {
 					ValidIssuer = builder.Configuration["Jwt:Issuer"],
 					ValidAudience = builder.Configuration["Jwt:Audience"],
 					IssuerSigningKey = new SymmetricSecurityKey(
-						Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+						Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"]!)),
+					ClockSkew = TimeSpan.Zero
 				};
 			});
 

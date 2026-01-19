@@ -6,6 +6,7 @@ internal static class Program {
 	private static void Main(string[] args) {
 		WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
+		builder.ConfigureConfiguration();
 		builder.ConfigureAuth();
 		builder.ConfigureLogging();
 		builder.ConfigureServices();
@@ -19,6 +20,7 @@ internal static class Program {
 
 		app.ConfigureMiddleware();
 		app.ConfigureSwagger();
+		app.UseAuthentication();
 		app.UseAuthorization();
 
 		app.Run();

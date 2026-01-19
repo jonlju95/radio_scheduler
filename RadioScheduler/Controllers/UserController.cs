@@ -6,6 +6,7 @@ using RadioScheduler.Services;
 
 namespace RadioScheduler.Controllers;
 
+[Authorize]
 public class UserController(UserService userService, ApiResponse apiResponse) : BaseApiController(apiResponse) {
 
 	[HttpGet]
