@@ -15,10 +15,11 @@ public class TokenService(IConfiguration config) {
 		SymmetricSecurityKey key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
 		SigningCredentials credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
+		ClaimsIdentity claims = new ClaimsIdentity([new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString())]);
+		claims.AddClaims(user.Roles.Select(role => new Claim(ClaimTypes.Role, role.Role.Title)));
+
 		SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor {
-			Subject = new ClaimsIdentity([
-				new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString())
-			]),
+			Subject = claims,
 			Expires = DateTime.UtcNow.AddMinutes(60),
 			SigningCredentials = credentials,
 			Issuer = config["Jwt:Issuer"],

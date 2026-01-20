@@ -6,7 +6,7 @@ using RadioScheduler.Services;
 
 namespace RadioScheduler.Controllers;
 
-[Authorize]
+[Authorize(Roles = "Administrator")]
 public class RadioHostController(
 	RadioHostService radioHostService,
 	ApiResponse apiResponse) : BaseApiController(apiResponse) {

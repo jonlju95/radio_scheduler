@@ -6,7 +6,7 @@ using RadioScheduler.Services;
 
 namespace RadioScheduler.Controllers;
 
-[Authorize]
+[Authorize(Roles = "Administrator")]
 public class StudioController(StudioService studioService, ApiResponse apiResponse) : BaseApiController(apiResponse) {
 
 	[HttpGet]

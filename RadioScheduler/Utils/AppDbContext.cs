@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using RadioScheduler.Models;
 using RadioScheduler.Models.Auth;
-using RadioScheduler.Utils.Enum;
 
 namespace RadioScheduler.Utils;
 
