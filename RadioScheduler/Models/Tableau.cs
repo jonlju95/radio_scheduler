@@ -1,20 +1,15 @@
-using System.ComponentModel.DataAnnotations.Schema;
-
 namespace RadioScheduler.Models;
 
 public class Tableau {
-	public Guid Id { get; init; } = Guid.NewGuid();
-	public DateOnly Date { get; init; }
-
-	[ForeignKey(nameof(ScheduleId))] public Guid ScheduleId { get; init; }
-	public List<Timeslot> Timeslots { get; set; } = [];
+	public Guid Id { get; set; } = Guid.NewGuid();
+	public DateOnly Date { get; set; }
+	public ICollection<Timeslot> Timeslots { get; set; } = new List<Timeslot>();
 
 	public Tableau() {
 	}
 
-	public Tableau(Guid id, DateOnly date, Guid scheduleId) {
+	public Tableau(Guid id, DateOnly date) {
 		this.Id = id;
 		this.Date = date;
-		this.ScheduleId = scheduleId;
 	}
 }

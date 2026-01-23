@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RadioScheduler.Models;
 using RadioScheduler.Models.Api;
@@ -5,6 +6,7 @@ using RadioScheduler.Services;
 
 namespace RadioScheduler.Controllers;
 
+[Authorize(Roles = "Administrator")]
 public class StudioController(StudioService studioService, ApiResponse apiResponse) : BaseApiController(apiResponse) {
 
 	[HttpGet]

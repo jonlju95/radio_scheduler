@@ -17,6 +17,253 @@ namespace RadioScheduler.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.9");
 
+            modelBuilder.Entity("RadioHostTimeslot", b =>
+                {
+                    b.Property<Guid>("TimeslotsId")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("timeslots_id");
+
+                    b.Property<Guid>("RadioHostsId")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("radio_hosts_id");
+
+                    b.HasKey("TimeslotsId", "RadioHostsId");
+
+                    b.HasIndex("RadioHostsId");
+
+                    b.HasIndex("TimeslotsId", "RadioHostsId");
+
+                    b.ToTable("timeslot_host", (string)null);
+                });
+
+            modelBuilder.Entity("RadioScheduler.Models.Accounting", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("TransactionDate")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("transaction_date");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("accounting", (string)null);
+                });
+
+            modelBuilder.Entity("RadioScheduler.Models.AccountingRow", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("id");
+
+                    b.Property<string>("AccountName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("account_name");
+
+                    b.Property<string>("AccountNumber")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("account_number");
+
+                    b.Property<Guid>("AccountingId")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("accounting_id");
+
+                    b.Property<decimal>("Credit")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("credit");
+
+                    b.Property<decimal>("Debit")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("debit");
+
+                    b.Property<int>("Vat")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("vat");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountingId");
+
+                    b.ToTable("accounting_row", (string)null);
+                });
+
+            modelBuilder.Entity("RadioScheduler.Models.Auth.Role", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("role_code");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("role_title");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("global_role", (string)null);
+                });
+
+            modelBuilder.Entity("RadioScheduler.Models.Auth.User", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("address");
+
+                    b.Property<string>("City")
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("city");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("email");
+
+                    b.Property<string>("FirstName")
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("first_name");
+
+                    b.Property<string>("LastName")
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("last_name");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("password");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("phone");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("username");
+
+                    b.Property<string>("ZipCode")
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("zip_code");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("global_user", (string)null);
+                });
+
+            modelBuilder.Entity("RadioScheduler.Models.Auth.UserLogin", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("LoginTime")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("login_time")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("user_login", (string)null);
+                });
+
+            modelBuilder.Entity("RadioScheduler.Models.Auth.UserRole", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("user_id");
+
+                    b.Property<string>("RoleId")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("role_id");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("user_role", (string)null);
+                });
+
+            modelBuilder.Entity("RadioScheduler.Models.ContributorPayment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AccountingId")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("accounting_id");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("amount");
+
+                    b.Property<bool>("IsPaid")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("is_paid");
+
+                    b.Property<DateTime>("PaymentDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("payment_date")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountingId")
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("contributor_payment", (string)null);
+                });
+
             modelBuilder.Entity("RadioScheduler.Models.RadioHost", b =>
                 {
                     b.Property<Guid>("Id")
@@ -58,38 +305,12 @@ namespace RadioScheduler.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasMaxLength(255)
                         .HasColumnType("TEXT")
                         .HasColumnName("title");
 
                     b.HasKey("Id");
 
                     b.ToTable("global_radio_show", (string)null);
-                });
-
-            modelBuilder.Entity("RadioScheduler.Models.Schedule", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT")
-                        .HasColumnName("id");
-
-                    b.Property<int>("Month")
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("month");
-
-                    b.PrimitiveCollection<string>("TableauIds")
-                        .IsRequired()
-                        .HasColumnType("TEXT")
-                        .HasColumnName("tableau_ids");
-
-                    b.Property<int>("Year")
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("year");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("global_schedule", (string)null);
                 });
 
             modelBuilder.Entity("RadioScheduler.Models.Studio", b =>
@@ -129,18 +350,15 @@ namespace RadioScheduler.Migrations
                         .HasColumnType("TEXT")
                         .HasColumnName("date");
 
-                    b.Property<Guid>("ScheduleId")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("schedule_id");
-
                     b.HasKey("Id");
 
-                    b.ToTable("tableau");
+                    b.ToTable("global_tableau", (string)null);
                 });
 
             modelBuilder.Entity("RadioScheduler.Models.Timeslot", b =>
                 {
                     b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT")
                         .HasColumnName("id");
 
@@ -148,9 +366,17 @@ namespace RadioScheduler.Migrations
                         .HasColumnType("TEXT")
                         .HasColumnName("end_time");
 
+                    b.Property<Guid?>("RadioShowId")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("radio_show_id");
+
                     b.Property<DateTime>("StartTime")
                         .HasColumnType("TEXT")
                         .HasColumnName("start_time");
+
+                    b.Property<Guid?>("StudioId")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("studio_id");
 
                     b.Property<Guid>("TableauId")
                         .HasColumnType("TEXT")
@@ -158,43 +384,107 @@ namespace RadioScheduler.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("RadioShowId")
+                        .IsUnique();
+
+                    b.HasIndex("StudioId")
+                        .IsUnique();
+
                     b.HasIndex("TableauId");
 
-                    b.ToTable("timeslot");
+                    b.HasIndex("StudioId", "StartTime", "EndTime");
+
+                    b.ToTable("timeslot", (string)null);
                 });
 
-            modelBuilder.Entity("timeslot_host", b =>
+            modelBuilder.Entity("RadioHostTimeslot", b =>
                 {
-                    b.Property<Guid>("host_id")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("host_id");
+                    b.HasOne("RadioScheduler.Models.RadioHost", null)
+                        .WithMany()
+                        .HasForeignKey("RadioHostsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Property<Guid>("timeslot_id")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("timeslot_id");
+                    b.HasOne("RadioScheduler.Models.Timeslot", null)
+                        .WithMany()
+                        .HasForeignKey("TimeslotsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
 
-                    b.HasKey("host_id", "timeslot_id");
+            modelBuilder.Entity("RadioScheduler.Models.AccountingRow", b =>
+                {
+                    b.HasOne("RadioScheduler.Models.Accounting", "Accounting")
+                        .WithMany("AccountingRows")
+                        .HasForeignKey("AccountingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.HasIndex("timeslot_id");
+                    b.Navigation("Accounting");
+                });
 
-                    b.ToTable("timeslot_host");
+            modelBuilder.Entity("RadioScheduler.Models.Auth.UserLogin", b =>
+                {
+                    b.HasOne("RadioScheduler.Models.Auth.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("RadioScheduler.Models.Auth.UserRole", b =>
+                {
+                    b.HasOne("RadioScheduler.Models.Auth.Role", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RadioScheduler.Models.Auth.User", "User")
+                        .WithMany("Roles")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Role");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("RadioScheduler.Models.ContributorPayment", b =>
+                {
+                    b.HasOne("RadioScheduler.Models.Accounting", "Accounting")
+                        .WithOne("ContributorPayment")
+                        .HasForeignKey("RadioScheduler.Models.ContributorPayment", "AccountingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RadioScheduler.Models.Auth.User", "User")
+                        .WithMany("ContributorPayments")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Accounting");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("RadioScheduler.Models.Timeslot", b =>
                 {
                     b.HasOne("RadioScheduler.Models.RadioShow", "RadioShow")
                         .WithMany()
-                        .HasForeignKey("Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("RadioShowId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("RadioScheduler.Models.Studio", "Studio")
                         .WithMany()
-                        .HasForeignKey("Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("StudioId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("RadioScheduler.Models.Tableau", null)
+                    b.HasOne("RadioScheduler.Models.Tableau", "Tableau")
                         .WithMany("Timeslots")
                         .HasForeignKey("TableauId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -203,21 +493,23 @@ namespace RadioScheduler.Migrations
                     b.Navigation("RadioShow");
 
                     b.Navigation("Studio");
+
+                    b.Navigation("Tableau");
                 });
 
-            modelBuilder.Entity("timeslot_host", b =>
+            modelBuilder.Entity("RadioScheduler.Models.Accounting", b =>
                 {
-                    b.HasOne("RadioScheduler.Models.RadioHost", null)
-                        .WithMany()
-                        .HasForeignKey("host_id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("AccountingRows");
 
-                    b.HasOne("RadioScheduler.Models.Timeslot", null)
-                        .WithMany()
-                        .HasForeignKey("timeslot_id")
-                        .OnDelete(DeleteBehavior.Cascade)
+                    b.Navigation("ContributorPayment")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("RadioScheduler.Models.Auth.User", b =>
+                {
+                    b.Navigation("ContributorPayments");
+
+                    b.Navigation("Roles");
                 });
 
             modelBuilder.Entity("RadioScheduler.Models.Tableau", b =>

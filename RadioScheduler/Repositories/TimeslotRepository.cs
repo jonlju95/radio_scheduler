@@ -18,9 +18,9 @@ public class TimeslotRepository(AppDbContext dbContext, IDbConnection dbConnecti
 
 		const string sql =
 			"SELECT ts.*, h.*, s.*, st.* FROM timeslot ts " +
-			"LEFT JOIN timeslot_host th ON th.timeslot_id = ts.id " +
-			"LEFT JOIN global_radio_host h ON h.id = th.host_id " +
-			"LEFT JOIN global_radio_show s ON s.id = ts.show_id " +
+			"LEFT JOIN timeslot_host th ON th.timeslots_id = ts.id " +
+			"LEFT JOIN global_radio_host h ON h.id = th.radio_hosts_id " +
+			"LEFT JOIN global_radio_show s ON s.id = ts.radio_show_id " +
 			"LEFT JOIN global_studio st ON st.id = ts.studio_id " +
 			"WHERE ts.id = @id " +
 			"ORDER BY h.is_guest";
@@ -57,8 +57,8 @@ public class TimeslotRepository(AppDbContext dbContext, IDbConnection dbConnecti
 			.ExecuteUpdateAsync(timeslot => timeslot
 				.SetProperty(t => t.StartTime, newTimeslot.StartTime)
 				.SetProperty(t => t.EndTime, newTimeslot.EndTime)
-				.SetProperty(t => t.RadioShow, newTimeslot.RadioShow)
-				.SetProperty(t => t.Studio, newTimeslot.Studio));
+				.SetProperty(t => t.RadioShowId, newTimeslot.RadioShowId)
+				.SetProperty(t => t.StudioId, newTimeslot.StudioId));
 	}
 
 	public async Task DeleteTimeslot(Guid id) {
@@ -66,17 +66,22 @@ public class TimeslotRepository(AppDbContext dbContext, IDbConnection dbConnecti
 	}
 
 	public async Task<IEnumerable<Timeslot>> GetTimeslotByTableauId(Guid id) {
-		return await dbContext.Timeslot.Where(t => t.TableauId.Equals(id)).ToListAsync();
+		return await dbContext.Timeslot.Where(t => t.TableauId == id)
+			.Include(t => t.RadioShow)
+			.Include(t => t.Studio)
+			.Include(t => t.RadioHosts)
+			.OrderBy(t => t.StartTime)
+			.ToListAsync();
 	}
 
 	public async Task CreateHostTimeslotConnection(Guid timeslotId, Guid hostId) {
-		const string sql = "INSERT INTO timeslot_host (timeslot_id, host_id) VALUES (@timeslotId, @hostId)";
+		const string sql = "INSERT INTO timeslot_host (timeslots_id, radio_hosts_id) VALUES (@timeslotId, @hostId)";
 
 		await dbConnection.ExecuteAsync(sql, new { timeslotId, hostId });
 	}
 
 	public Task DeleteHostTimeslotConnection(Guid timeslotId, Guid hostId) {
-		const string sql = "DELETE FROM timeslot_host WHERE timeslot_id = @timeslotId AND host_id = @hostId";
+		const string sql = "DELETE FROM timeslot_host WHERE timeslots_id = @timeslotId AND radio_hosts_id = @hostId";
 
 		return dbConnection.ExecuteAsync(sql, new { timeslotId, hostId });
 	}

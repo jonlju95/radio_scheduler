@@ -12,7 +12,7 @@ public class RadioShowRepository(AppDbContext dbContext, IDbConnection dbConnect
 		return await dbContext.RadioShow.ToListAsync();
 	}
 
-	public async Task<RadioShow?> GetRadioShow(Guid id) {
+	public async Task<RadioShow?> GetRadioShow(Guid? id) {
 		return await dbContext.RadioShow.FindAsync(id);
 	}
 

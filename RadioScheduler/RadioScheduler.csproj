@@ -4,6 +4,7 @@
         <TargetFramework>net9.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>83712484-e5da-46bf-9082-d4f0c1106d64</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
@@ -72,6 +73,7 @@
 
     <ItemGroup>
       <PackageReference Include="Dapper" Version="2.1.66" />
+      <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.11" />
       <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.9" />
       <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.8" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.9">
@@ -80,7 +82,9 @@
       </PackageReference>
       <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.9" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.9" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="10.0.2" />
       <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.4" />
+      <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.15.0" />
     </ItemGroup>
 
     <ItemGroup>

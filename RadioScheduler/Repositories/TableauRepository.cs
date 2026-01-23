@@ -25,8 +25,7 @@ public class TableauRepository(AppDbContext dbContext, IDbConnection dbConnectio
 		await dbContext.Tableau
 			.Where(t => t.Id.Equals(newTableau.Id))
 			.ExecuteUpdateAsync(tableau => tableau
-				.SetProperty(t => t.Date, newTableau.Date)
-				.SetProperty(t => t.ScheduleId, newTableau.ScheduleId));
+				.SetProperty(t => t.Date, newTableau.Date));
 	}
 
 	public async Task DeleteTableau(Guid id) {
